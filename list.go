@@ -64,3 +64,8 @@ func (a List) String() List {
 	}
 	return a
 }
+
+// Count returns the count of list a.
+func (a List) Count() Value {
+	return Int(len(a))
+}
