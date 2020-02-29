@@ -108,3 +108,15 @@ func (a List) Mean() Value {
 	}
 	return s / Float(len(a))
 }
+
+// Var returns the var of list a.
+func (a List) Var() Value {
+	x, y, n := Float(0), Float(0), Float(len(a))
+	for _, v := range a {
+		z := Float(v.Float())
+		x += z * z
+		y += z
+	}
+	y /= n
+	return x/n - y*y
+}
