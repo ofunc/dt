@@ -1,5 +1,9 @@
 package dt
 
+import (
+	"math"
+)
+
 // List is the list data structure.
 type List []Value
 
@@ -119,4 +123,13 @@ func (a List) Var() Value {
 	}
 	y /= n
 	return x/n - y*y
+}
+
+// Std returns the std of list a.
+func (a List) Std() Value {
+	v := a.Var().(Float)
+	if v > 0 {
+		return Float(math.Sqrt(float64(v)))
+	}
+	return 0
 }
