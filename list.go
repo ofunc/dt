@@ -32,3 +32,11 @@ func (a List) FillNA(value Value) List {
 	}
 	return a
 }
+
+// Int converts the list to int list.
+func (a List) Int() List {
+	for i, v := range a {
+		a[i] = Int(v.Int())
+	}
+	return a
+}
