@@ -144,3 +144,14 @@ func (a List) Max() Value {
 	}
 	return m
 }
+
+// Min returns the min of list a.
+func (a List) Min() Value {
+	var m Value = Float(math.Inf(1))
+	for _, v := range a {
+		if v.Float() < m.Float() {
+			m = v
+		}
+	}
+	return m
+}
