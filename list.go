@@ -40,3 +40,11 @@ func (a List) Int() List {
 	}
 	return a
 }
+
+// Float converts the list to float list.
+func (a List) Float() List {
+	for i, v := range a {
+		a[i] = Float(v.Float())
+	}
+	return a
+}
