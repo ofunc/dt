@@ -131,5 +131,16 @@ func (a List) Std() Value {
 	if v > 0 {
 		return Float(math.Sqrt(float64(v)))
 	}
-	return 0
+	return Float(0)
+}
+
+// Max returns the max of list a.
+func (a List) Max() Value {
+	var m Value = Float(math.Inf(-1))
+	for _, v := range a {
+		if v.Float() > m.Float() {
+			m = v
+		}
+	}
+	return m
 }
