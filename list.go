@@ -65,6 +65,14 @@ func (a List) String() List {
 	return a
 }
 
+// First returns the first of list a.
+func (a List) First() Value {
+	if len(a) < 1 {
+		return nil
+	}
+	return a[0]
+}
+
 // Count returns the count of list a.
 func (a List) Count() Value {
 	return Int(len(a))
