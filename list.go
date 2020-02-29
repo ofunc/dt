@@ -69,3 +69,17 @@ func (a List) String() List {
 func (a List) Count() Value {
 	return Int(len(a))
 }
+
+// Sum returns the sum of list a.
+func (a List) Sum() Value {
+	var s Value = Int(0)
+	for _, v := range a {
+		if x, ok := s.(Int); ok {
+			if y, ok := v.(Int); ok {
+				s = x + y
+			}
+		}
+		s = Float(s.Float() + v.Float())
+	}
+	return s
+}
