@@ -83,3 +83,12 @@ func (a List) Sum() Value {
 	}
 	return s
 }
+
+// Mean returns the mean of list a.
+func (a List) Mean() Value {
+	s := Float(0)
+	for _, v := range a {
+		s += Float(v.Float())
+	}
+	return s / Float(len(a))
+}
