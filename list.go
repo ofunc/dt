@@ -56,3 +56,11 @@ func (a List) Bool() List {
 	}
 	return a
 }
+
+// String converts the list to string list.
+func (a List) String() List {
+	for i, v := range a {
+		a[i] = String(v.String())
+	}
+	return a
+}
