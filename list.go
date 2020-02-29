@@ -67,10 +67,18 @@ func (a List) String() List {
 
 // First returns the first of list a.
 func (a List) First() Value {
-	if len(a) < 1 {
-		return nil
+	if len(a) > 0 {
+		return a[0]
 	}
-	return a[0]
+	return nil
+}
+
+// Last returns the last of list a.
+func (a List) Last() Value {
+	if n := len(a); n > 0 {
+		return a[n-1]
+	}
+	return nil
 }
 
 // Count returns the count of list a.
