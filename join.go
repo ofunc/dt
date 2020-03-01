@@ -42,7 +42,10 @@ func (a Join) Do(lprefix, rprefix string) *Frame {
 	}
 
 	n, m := len(a.lframe.lists), a.lframe.Len()
-	frame := NewFrame(n + len(a.rframe.lists))
+	frame := &Frame{
+		index: make(map[string]int, n+len(a.rframe.lists)),
+		lists: make([]List, n+len(a.rframe.lists)),
+	}
 	copy(frame.lists, a.lframe.lists)
 	for key, i := range a.lframe.index {
 		frame.index[lprefix+key] = i

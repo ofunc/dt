@@ -5,7 +5,8 @@ import (
 	"reflect"
 )
 
-var tvalue = reflect.TypeOf(Value(nil))
+var na = Value(nil)
+var tvalue = reflect.TypeOf(&na).Elem()
 
 // IsNA checks if a is NA.
 func IsNA(a Value) bool {

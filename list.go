@@ -97,6 +97,7 @@ func (a List) Sum() Value {
 		if x, ok := s.(Int); ok {
 			if y, ok := v.(Int); ok {
 				s = x + y
+				continue
 			}
 		}
 		s = Float(s.Float() + v.Float())

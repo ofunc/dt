@@ -19,17 +19,23 @@ func (a Group) Apply(prefix string, key string, f func(List) Value) Group {
 
 // Do does the group.
 func (a Group) Do() *Frame {
-	frame := NewFrame(len(a.keys))
+	index := make(map[string]int, len(a.keys))
 	for j, key := range a.keys {
-		prefix, f := a.prefixes[j], a.funcs[j]
-		frame.index[prefix+key] = j
-		for _, is := range a.data {
+		index[a.prefixes[j]+key] = j
+	}
+	frame := &Frame{
+		index: index,
+		lists: make([]List, len(a.keys)),
+	}
+
+	for _, is := range a.data {
+		for j, key := range a.keys {
 			list := a.frame.Get(key)
 			l := make(List, len(is))
 			for k, i := range is {
 				l[k] = list[i]
 			}
-			frame.lists[j] = append(frame.lists[j], f(l))
+			frame.lists[j] = append(frame.lists[j], a.funcs[j](l))
 		}
 	}
 	return frame

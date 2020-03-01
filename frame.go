@@ -1,6 +1,7 @@
 package dt
 
 import (
+	"bytes"
 	"fmt"
 	"reflect"
 	"sort"
@@ -13,10 +14,9 @@ type Frame struct {
 }
 
 // NewFrame creates a new frame.
-func NewFrame(n int) *Frame {
+func NewFrame() *Frame {
 	return &Frame{
-		index: make(map[string]int, n),
-		lists: make([]List, n),
+		index: make(map[string]int),
 	}
 }
 
@@ -121,7 +121,7 @@ func (a *Frame) Pick(keys ...string) *Frame {
 	if len(keys) == 0 {
 		return a
 	}
-	b := NewFrame(0)
+	b := NewFrame()
 	for _, key := range keys {
 		b.Set(key, a.Get(key))
 	}
@@ -242,6 +242,32 @@ func (a *Frame) Group(keys ...string) Group {
 		frame: a,
 		data:  data,
 	}
+}
+
+// String shows frame a as string.
+func (a *Frame) String() string {
+	buf := new(bytes.Buffer)
+	m := len(a.lists) - 1
+	for j, key := range a.Keys() {
+		fmt.Fprint(buf, key)
+		if j == m {
+			fmt.Fprintln(buf)
+		} else {
+			fmt.Fprint(buf, "\t")
+		}
+	}
+	n := a.Len()
+	for i := 0; i < n; i++ {
+		for j, l := range a.lists {
+			fmt.Fprint(buf, l[i])
+			if j == m {
+				fmt.Fprintln(buf)
+			} else {
+				fmt.Fprint(buf, "\t")
+			}
+		}
+	}
+	return buf.String()
 }
 
 func (a *Frame) check(list List) {
