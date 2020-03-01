@@ -14,8 +14,8 @@ import (
 	"golang.org/x/text/transform"
 )
 
-// Loader is the CSV loader.
-type Loader struct {
+// Reader is the CSV reader.
+type Reader struct {
 	drop             int
 	head             int
 	tail             int
@@ -27,83 +27,83 @@ type Loader struct {
 	transformer      transform.Transformer
 }
 
-// NewLoader creates a new loader.
-func NewLoader(sep string) Loader {
-	return Loader{
+// NewReader creates a new reader.
+func NewReader(sep string) Reader {
+	return Reader{
 		head: 1,
 		sep:  sep,
 	}
 }
 
 // Drop drops the first n records.
-func (a Loader) Drop(n int) Loader {
+func (a Reader) Drop(n int) Reader {
 	if n < 0 {
-		panic(errors.New("dt/io/csv.Loader.Drop: invalid arguments"))
+		panic(errors.New("dt/io/csv.Reader.Drop: invalid arguments"))
 	}
 	a.drop = n
 	return a
 }
 
 // Head sets the head lines.
-func (a Loader) Head(n int) Loader {
+func (a Reader) Head(n int) Reader {
 	if n < 1 {
-		panic(errors.New("dt/io/csv.Loader.Head: invalid arguments"))
+		panic(errors.New("dt/io/csv.Reader.Head: invalid arguments"))
 	}
 	a.head = n
 	return a
 }
 
 // Tail sets the tail lines.
-func (a Loader) Tail(n int) Loader {
+func (a Reader) Tail(n int) Reader {
 	if n < 0 {
-		panic(errors.New("dt/io/csv.Loader.Tail: invalid arguments"))
+		panic(errors.New("dt/io/csv.Reader.Tail: invalid arguments"))
 	}
 	a.tail = n
 	return a
 }
 
 // Comma sets the comma.
-func (a Loader) Comma(v rune) Loader {
+func (a Reader) Comma(v rune) Reader {
 	a.comma = v
 	return a
 }
 
 // Comment sets the comment.
-func (a Loader) Comment(v rune) Loader {
+func (a Reader) Comment(v rune) Reader {
 	a.comment = v
 	return a
 }
 
 // LazyQuotes sets the lazy quotes.
-func (a Loader) LazyQuotes(v bool) Loader {
+func (a Reader) LazyQuotes(v bool) Reader {
 	a.lazyQuotes = v
 	return a
 }
 
 // TrimLeadingSpace sets the trim leading space.
-func (a Loader) TrimLeadingSpace(v bool) Loader {
+func (a Reader) TrimLeadingSpace(v bool) Reader {
 	a.trimLeadingSpace = v
 	return a
 }
 
 // Transformer sets the transformer.
-func (a Loader) Transformer(v transform.Transformer) Loader {
+func (a Reader) Transformer(v transform.Transformer) Reader {
 	a.transformer = v
 	return a
 }
 
-// LoadFile loads a frame from CSV file.
-func (a Loader) LoadFile(name string) (*dt.Frame, error) {
+// ReadFile reads a frame from the file.
+func (a Reader) ReadFile(name string) (*dt.Frame, error) {
 	f, err := os.Open(name)
 	if err != nil {
 		return nil, err
 	}
 	defer f.Close()
-	return a.LoadReader(f)
+	return a.Read(f)
 }
 
-// LoadReader loads a frame from CSV reader.
-func (a Loader) LoadReader(r io.Reader) (*dt.Frame, error) {
+// Read reads a frame from the io.Reader.
+func (a Reader) Read(r io.Reader) (*dt.Frame, error) {
 	cr := csv.NewReader(a.reader(r))
 	if a.comma != 0 {
 		cr.Comma = a.comma
@@ -130,7 +130,7 @@ func (a Loader) LoadReader(r io.Reader) (*dt.Frame, error) {
 	return frame, nil
 }
 
-func (a Loader) reader(r io.Reader) io.Reader {
+func (a Reader) reader(r io.Reader) io.Reader {
 	if a.transformer != nil {
 		r = transform.NewReader(r, a.transformer)
 	}
