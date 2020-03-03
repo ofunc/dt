@@ -151,6 +151,8 @@ func value(c *xlsx.Cell) dt.Value {
 		return nil
 	}
 	switch c.Type() {
+	case types.CellTypeSharedString, types.CellTypeInlineString:
+		return dt.String(c.Value())
 	case types.CellTypeBool:
 		if v, err := c.Bool(); err == nil {
 			return dt.Bool(v)
