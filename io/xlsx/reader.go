@@ -115,7 +115,7 @@ func makeKey(s xlsx.Sheet, nr int, ir, ic int, h int, sep string) string {
 	}
 	for i := ir; i < n; i++ {
 		for j := ic; j >= 0; j-- {
-			if v := s.Cell(j, i).Value(); v != "" {
+			if v := s.Cell(j, i).String(); v != "" {
 				if key == "" {
 					key = v
 				} else if key != v {
@@ -156,11 +156,6 @@ func value(c *xlsx.Cell) dt.Value {
 			return dt.Bool(v)
 		}
 		return dt.Bool(false)
-	case types.CellTypeDate:
-		if v, err := c.Date(); err == nil {
-			return dt.String(v.Format("2006-01-02 15:04:05"))
-		}
-		return dt.String("0000-00-00 00:00:00")
 	default:
 		if v, err := c.Int(); err == nil {
 			return dt.Int(v)
