@@ -18,7 +18,7 @@ type Workbook struct {
 	rels    Rels
 }
 
-// TODO rels， sharedstrings，归属 workbook，打开时一次性读取
+// TODO sharedstrings，归属 workbook，打开时一次性读取
 // 保存其他所有文件，原样写入
 
 // OpenFile opens the workbook from a file.
@@ -85,7 +85,7 @@ func (a *Workbook) SaveZipWriter(zw *zip.Writer) error {
 func (a *Workbook) Sheet(name string) *Sheet {
 	for _, sheet := range a.Sheets {
 		if sheet.Name == name {
-			if sheet.target == "" {
+			if sheet.workbook == nil {
 				sheet.workbook = a
 				for _, rel := range a.rels.Rels {
 					if rel.ID == sheet.ID {
@@ -98,13 +98,4 @@ func (a *Workbook) Sheet(name string) *Sheet {
 		}
 	}
 	return nil
-}
-
-// SetSheet sets the sheet by name.
-func (a *Workbook) SetSheet(name string, sheet *Sheet) {
-	// TODO
-	// 查找是否存在
-	// 不存在就报错
-	// 替换原来的sheetx.xml 里的data部分
-	// 清空CalcID
 }
