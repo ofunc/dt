@@ -1,5 +1,9 @@
 package xlsx
 
+import (
+	"errors"
+)
+
 // RowIter is a row iter.
 type RowIter struct {
 	i    int
@@ -19,6 +23,9 @@ func (a *RowIter) Next() bool {
 		return false
 	}
 	a.r = RowIndex(a.rows[a.j].Ref)
+	if a.i > a.r {
+		panic(errors.New("dt/io/xlsx: invalid xlsx file"))
+	}
 	return true
 }
 

@@ -1,6 +1,9 @@
 package xlsx
 
-import "strings"
+import (
+	"errors"
+	"strings"
+)
 
 // CellIter is a cell iter.
 type CellIter struct {
@@ -21,6 +24,9 @@ func (a *CellIter) Next() bool {
 		return false
 	}
 	_, a.c = CellIndex(strings.ToUpper(a.cells[a.j].Ref))
+	if a.i > a.c {
+		panic(errors.New("dt/io/xlsx: invalid xlsx file"))
+	}
 	return true
 }
 
