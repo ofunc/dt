@@ -152,5 +152,5 @@ func (a Reader) makeKeys(hs [][]string) []string {
 			}
 		}
 	}
-	return keys
+	return keys // TODO fix BUG
 }

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strconv"
+	"strings"
 
 	"github.com/ofunc/dt"
 )
@@ -90,17 +91,19 @@ func cellValue(workbook *Workbook, cell *Cell) dt.Value {
 	switch cell.Type {
 	case "b":
 		return dt.Bool(cell.Value != "0")
-	case "string":
-		return dt.String(cell.Value) // TODO
-	case "number":
+	case "inlineStr":
+		return dt.String(cell.Value)
+	case "s":
 		return dt.String(cell.Value) // TODO
 	default:
-		// TODO 注意精度
-		if v, err := strconv.Atoi(cell.Value); err == nil {
+		s := strings.TrimSpace(cell.Value)
+		if v, err := strconv.Atoi(s); err == nil {
 			return dt.Int(v)
 		}
-		if v, err := strconv.ParseFloat(cell.Value, 64); err == nil {
-			return dt.Float(v)
+		if len(s) <= 15 {
+			if v, err := strconv.ParseFloat(s, 64); err == nil {
+				return dt.Float(v)
+			}
 		}
 		return dt.String(cell.Value)
 	}
