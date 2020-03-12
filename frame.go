@@ -14,9 +14,15 @@ type Frame struct {
 }
 
 // NewFrame creates a new frame.
-func NewFrame() *Frame {
+func NewFrame(keys ...string) *Frame {
+	n := len(keys)
+	index := make(map[string]int, n)
+	for i, key := range keys {
+		index[key] = i
+	}
 	return &Frame{
-		index: make(map[string]int),
+		index: index,
+		lists: make([]List, n),
 	}
 }
 

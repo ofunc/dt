@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strconv"
+
+	"github.com/ofunc/dt"
 )
 
 // RowRef returns the row ref by index.
@@ -79,4 +81,27 @@ func readZipFile(f *zip.File) ([]byte, error) {
 	}
 	defer r.Close()
 	return ioutil.ReadAll(r)
+}
+
+func cellValue(workbook *Workbook, cell *Cell) dt.Value {
+	if cell == nil {
+		return nil
+	}
+	switch cell.Type {
+	case "b":
+		return dt.Bool(cell.Value != "0")
+	case "string":
+		return dt.String(cell.Value) // TODO
+	case "number":
+		return dt.String(cell.Value) // TODO
+	default:
+		// TODO 注意精度
+		if v, err := strconv.Atoi(cell.Value); err == nil {
+			return dt.Int(v)
+		}
+		if v, err := strconv.ParseFloat(cell.Value, 64); err == nil {
+			return dt.Float(v)
+		}
+		return dt.String(cell.Value)
+	}
 }

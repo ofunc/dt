@@ -12,10 +12,10 @@ import (
 type Workbook struct {
 	XMLBase
 	XMLName xml.Name
-	CalcID  string   `xml:"calcPr>calcId,attr"`
 	Sheets  []*Sheet `xml:"sheets>sheet"`
-	files   map[string]([]byte)
-	rels    Rels
+	// CalcID  string   `xml:"calcPr>calcId"`
+	files map[string]([]byte)
+	rels  Rels
 }
 
 // TODO sharedstrings，归属 workbook，打开时一次性读取
@@ -61,7 +61,7 @@ func OpenZipReader(zr *zip.Reader) (*Workbook, error) {
 	if err := xml.NewDecoder(bytes.NewReader(files["xl/_rels/workbook.xml.rels"])).Decode(&workbook.rels); err != nil {
 		return nil, err
 	}
-	workbook.CalcID = ""
+	// workbook.CalcID = ""
 	workbook.files = files
 	return workbook, nil
 }
@@ -83,6 +83,9 @@ func (a *Workbook) SaveZipWriter(zw *zip.Writer) error {
 
 // Sheet returns the sheet by name.
 func (a *Workbook) Sheet(name string) *Sheet {
+	if name == "" {
+		return a.Sheet(a.Sheets[0].Name)
+	}
 	for _, sheet := range a.Sheets {
 		if sheet.Name == name {
 			if sheet.workbook == nil {

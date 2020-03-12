@@ -7,25 +7,25 @@ import (
 
 // Sheet is a sheet.
 type Sheet struct {
-	ID       string `xml:"http://schemas.openxmlformats.org/officeDocument/2006/relationships id"`
-	Name     string `xml:"name"`
+	XMLName  xml.Name
+	ID       string `xml:"http://schemas.openxmlformats.org/officeDocument/2006/relationships id,attr"`
+	Name     string `xml:"name,attr"`
 	target   string
 	workbook *Workbook
 	data     *Data
 }
 
 // Data returns the sheet data.
-func (a *Sheet) Data() (*Data, error) {
+func (a *Sheet) Data() *Data {
 	if a.data != nil {
-		return a.data, nil
+		return a.data
 	}
 	a.data = new(Data)
 	if err := xml.NewDecoder(bytes.NewBuffer(a.workbook.files["xl/"+a.target])).Decode(a.data); err != nil {
-		return nil, err
+		panic(err)
 	}
 	// TODO trim empty rows
-	a.data.workbook = a.workbook
-	return a.data, nil
+	return a.data
 }
 
 // Update updates the sheet data.

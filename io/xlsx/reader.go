@@ -2,6 +2,7 @@ package xlsx
 
 import (
 	"errors"
+	"fmt"
 	"io"
 
 	"github.com/ofunc/dt"
@@ -75,44 +76,81 @@ func (a Reader) Read(r io.Reader) (*dt.Frame, error) {
 	return a.read(workbook)
 }
 
-func (a Reader) read(workbook *Workbook) (*dt.Frame, error) {
-	// TODO recover panic
-	// sheet := workbook.Sheet(a.sheet)
-	// data, err := sheet.Data()
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// frame := dt.NewFrame()
-	// nr := data.Len() - a.tail
-	// nc := data.Row(a.drop + a.head - 1).Len()
-	// for j := 0; j < nc; j++ {
-	// 	frame.Set(a.makeKey(data, j), nil)
-	// }
-	// lists := frame.Lists()
-	// for i := a.drop + a.head; i < nr; i++ {
-	// 	for j := 0; j < nc; j++ {
-	// 		lists[j] = append(lists[j], data.Value(i, j))
-	// 	}
-	// }
-	return nil, nil
+func (a Reader) read(workbook *Workbook) (frame *dt.Frame, err error) {
+	defer func() {
+		if e := recover(); e != nil {
+			err = fmt.Errorf("%v", e)
+		}
+	}()
+
+	rowiter := workbook.Sheet(a.sheet).Data().RowIter()
+	for i := 0; i < a.drop; i++ {
+		if !rowiter.Next() {
+			break
+		}
+	}
+
+	hs := make([][]string, a.head)
+	for i := range hs {
+		if !rowiter.Next() {
+			break
+		}
+		row := rowiter.Row()
+		if row != nil {
+			for celliter := row.CellIter(); celliter.Next(); {
+				cell := celliter.Cell()
+				if cell == nil {
+					hs[i] = append(hs[i], "")
+				} else {
+					hs[i] = append(hs[i], cell.Value)
+				}
+			}
+		}
+	}
+	keys := a.makeKeys(hs)
+	frame = dt.NewFrame(keys...)
+	lists := frame.Lists()
+	for rowiter.Next() {
+		row := rowiter.Row()
+		if row == nil {
+			continue
+		}
+		celliter := row.CellIter()
+		for i, list := range lists {
+			var v dt.Value
+			if celliter.Next() {
+				if cell := celliter.Cell(); cell != nil {
+					v = cellValue(workbook, cell)
+				}
+			}
+			lists[i] = append(list, v)
+		}
+	}
+	n := frame.Len() - a.tail
+	if n < 0 {
+		n = 0
+	}
+	for i, list := range lists {
+		lists[i] = list[:n]
+	}
+	return
 }
 
-// func (a Reader) makeKeys(hs [][]string) []string {
-// 	var key string
-// 	n := a.drop + a.head
-// 	for i := a.drop; i < n; i++ {
-// 		for j := c; j >= 0; j-- {
-// 			if v := data.Value(i, j); v != nil {
-// 				if k := v.String(); k != "" {
-// 					if key == "" {
-// 						key = k
-// 					} else {
-// 						key = key + a.sep + k
-// 					}
-// 					break
-// 				}
-// 			}
-// 		}
-// 	}
-// 	return key
-// }
+func (a Reader) makeKeys(hs [][]string) []string {
+	n := len(hs[len(hs)-1])
+	keys := make([]string, n)
+	for _, h := range hs {
+		var k string
+		for j, v := range h {
+			if v != "" {
+				k = v
+			}
+			if keys[j] == "" {
+				keys[j] = k
+			} else {
+				keys[j] = keys[j] + a.sep + k
+			}
+		}
+	}
+	return keys
+}
