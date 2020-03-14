@@ -139,18 +139,20 @@ func (a Reader) read(workbook *Workbook) (frame *dt.Frame, err error) {
 func (a Reader) makeKeys(hs [][]string) []string {
 	n := len(hs[len(hs)-1])
 	keys := make([]string, n)
-	for _, h := range hs {
-		var k string
-		for j, v := range h {
-			if v != "" {
-				k = v
+	xs := make([]string, len(hs))
+	for j := 0; j < n; j++ {
+		for i, h := range hs {
+			if j < len(h) && h[j] != "" {
+				xs[i] = h[j]
 			}
+		}
+		for _, x := range xs {
 			if keys[j] == "" {
-				keys[j] = k
-			} else {
-				keys[j] = keys[j] + a.sep + k
+				keys[j] = x
+			} else if x != "" {
+				keys[j] = keys[j] + a.sep + x
 			}
 		}
 	}
-	return keys // TODO fix BUG
+	return keys
 }
