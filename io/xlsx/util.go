@@ -91,10 +91,8 @@ func cellValue(workbook *Workbook, cell *Cell) dt.Value {
 	switch cell.Type {
 	case "b":
 		return dt.Bool(cell.Value != "0")
-	case "inlineStr":
-		return dt.String(cell.Value)
 	case "s":
-		return dt.String(cell.Value) // TODO
+		return dt.String(workbook.sst.Value(cell.Value))
 	default:
 		s := strings.TrimSpace(cell.Value)
 		if v, err := strconv.Atoi(s); err == nil {
@@ -107,16 +105,4 @@ func cellValue(workbook *Workbook, cell *Cell) dt.Value {
 		}
 		return dt.String(cell.Value)
 	}
-}
-
-func emptyRow(row *Row) bool {
-	if row == nil {
-		return true
-	}
-	for _, cell := range row.Cells {
-		if strings.TrimSpace(cell.Value) != "" {
-			return false // TODO 注意sharestring ""
-		}
-	}
-	return true
 }

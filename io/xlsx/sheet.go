@@ -27,7 +27,7 @@ func (a *Sheet) Data() *Data {
 	rows := a.data.Rows
 	i := len(rows) - 1
 	for ; i >= 0; i-- {
-		if !emptyRow(rows[i]) {
+		if row := rows[i]; row != nil && !row.IsEmpty() {
 			break
 		}
 	}

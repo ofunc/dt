@@ -16,6 +16,7 @@ type Workbook struct {
 	// CalcID  string   `xml:"calcPr>calcId"`
 	files map[string]([]byte)
 	rels  Rels
+	sst   SST
 }
 
 // TODO sharedstrings，归属 workbook，打开时一次性读取
@@ -59,6 +60,9 @@ func OpenZipReader(zr *zip.Reader) (*Workbook, error) {
 		return nil, err
 	}
 	if err := xml.NewDecoder(bytes.NewReader(files["xl/_rels/workbook.xml.rels"])).Decode(&workbook.rels); err != nil {
+		return nil, err
+	}
+	if err := xml.NewDecoder(bytes.NewReader(files["xl/sharedStrings.xml"])).Decode(&workbook.sst); err != nil {
 		return nil, err
 	}
 	// workbook.CalcID = ""

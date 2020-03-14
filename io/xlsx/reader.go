@@ -101,6 +101,8 @@ func (a Reader) read(workbook *Workbook) (frame *dt.Frame, err error) {
 				cell := celliter.Cell()
 				if cell == nil {
 					hs[i] = append(hs[i], "")
+				} else if cell.Type == "s" {
+					hs[i] = append(hs[i], workbook.sst.Value(cell.Value))
 				} else {
 					hs[i] = append(hs[i], cell.Value)
 				}
