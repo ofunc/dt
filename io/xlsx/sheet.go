@@ -7,7 +7,6 @@ import (
 
 // Sheet is a sheet.
 type Sheet struct {
-	XMLName  xml.Name
 	ID       string `xml:"http://schemas.openxmlformats.org/officeDocument/2006/relationships id,attr"`
 	Name     string `xml:"name,attr"`
 	target   string

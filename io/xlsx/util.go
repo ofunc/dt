@@ -5,11 +5,14 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/ofunc/dt"
 )
+
+var regCalcID = regexp.MustCompile(`<\s*calcPr\s+calcId\s*=\s*"\d*"`)
 
 // RowRef returns the row ref by index.
 func RowRef(i int) string {

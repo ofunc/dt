@@ -11,13 +11,10 @@ import (
 
 // Workbook is a workbook.
 type Workbook struct {
-	XMLBase
-	XMLName xml.Name
-	Sheets  []*Sheet `xml:"sheets>sheet"`
-	// CalcID  string   `xml:"calcPr>calcId"`
-	files map[string]([]byte)
-	rels  Rels
-	sst   SSTable
+	Sheets []*Sheet `xml:"sheets>sheet"`
+	files  map[string]([]byte)
+	rels   Rels
+	sst    SSTable
 }
 
 // OpenFile opens the workbook from a file.
@@ -63,7 +60,6 @@ func OpenZipReader(zr *zip.Reader) (*Workbook, error) {
 	if err := xml.NewDecoder(bytes.NewReader(files["xl/sharedStrings.xml"])).Decode(&workbook.sst); err != nil && err != io.EOF {
 		return nil, err
 	}
-	// workbook.CalcID = ""
 	workbook.files = files
 	return workbook, nil
 }
@@ -88,6 +84,7 @@ func (a *Workbook) SaveWriter(w io.Writer) error {
 
 // SaveZipWriter save the workbook to a zip writer.
 func (a *Workbook) SaveZipWriter(zw *zip.Writer) error {
+	a.files["xl/workbook.xml"] = regCalcID.ReplaceAll(a.files["xl/workbook.xml"], []byte(`<calcPr calcId=""`))
 	for name, body := range a.files {
 		w, err := zw.Create(name)
 		if err != nil {

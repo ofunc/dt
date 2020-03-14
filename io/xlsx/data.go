@@ -1,6 +1,8 @@
 package xlsx
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+)
 
 // Data is the sheet data.
 type Data struct {
