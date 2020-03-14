@@ -37,5 +37,10 @@ func (a *Sheet) Data() *Data {
 
 // Update updates the sheet data.
 func (a *Sheet) Update() error {
-	return nil // TODO
+	buf := bytes.NewBuffer([]byte(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>`))
+	if err := xml.NewEncoder(buf).Encode(a.data); err != nil {
+		return err
+	}
+	a.workbook.files["xl/"+a.target] = buf.Bytes()
+	return nil
 }

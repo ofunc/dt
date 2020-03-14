@@ -70,7 +70,7 @@ func OpenZipReader(zr *zip.Reader) (*Workbook, error) {
 
 // SaveFile save the workbook to a file.
 func (a *Workbook) SaveFile(name string) error {
-	f, err := os.Open(name)
+	f, err := os.Create(name)
 	if err != nil {
 		return err
 	}
