@@ -16,7 +16,7 @@ type Workbook struct {
 	// CalcID  string   `xml:"calcPr>calcId"`
 	files map[string]([]byte)
 	rels  Rels
-	sst   SST
+	sst   SSTable
 }
 
 // TODO sharedstrings，归属 workbook，打开时一次性读取
