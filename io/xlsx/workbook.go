@@ -6,6 +6,7 @@ import (
 	"encoding/xml"
 	"io"
 	"io/ioutil"
+	"os"
 )
 
 // Workbook is a workbook.
@@ -18,9 +19,6 @@ type Workbook struct {
 	rels  Rels
 	sst   SSTable
 }
-
-// TODO sharedstrings，归属 workbook，打开时一次性读取
-// 保存其他所有文件，原样写入
 
 // OpenFile opens the workbook from a file.
 func OpenFile(name string) (*Workbook, error) {
@@ -72,17 +70,34 @@ func OpenZipReader(zr *zip.Reader) (*Workbook, error) {
 
 // SaveFile save the workbook to a file.
 func (a *Workbook) SaveFile(name string) error {
-	return nil // TODO
+	f, err := os.Open(name)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	if err := a.SaveWriter(f); err != nil {
+		return err
+	}
+	return f.Sync()
 }
 
 // SaveWriter save the workbook to a writer.
 func (a *Workbook) SaveWriter(w io.Writer) error {
-	return nil // TODO
+	return a.SaveZipWriter(zip.NewWriter(w))
 }
 
 // SaveZipWriter save the workbook to a zip writer.
 func (a *Workbook) SaveZipWriter(zw *zip.Writer) error {
-	return nil // TODO
+	for name, body := range a.files {
+		w, err := zw.Create(name)
+		if err != nil {
+			return err
+		}
+		if _, err := w.Write(body); err != nil {
+			return err
+		}
+	}
+	return zw.Close()
 }
 
 // Sheet returns the sheet by name.
