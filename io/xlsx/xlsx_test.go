@@ -8,11 +8,18 @@ import (
 )
 
 func TestXLSX(t *testing.T) {
-	f, err := xlsx.NewReader("/").Drop(1).Head(2).Tail(1).ReadFile("工作簿1.xlsx")
+	f, err := xlsx.NewReader("/").Drop(1).Head(3).Tail(1).ReadFile("新建文档2020-03-14 17_56_39.xlsx")
 	if err != nil {
 		t.Fatal(err)
 	}
 	fmt.Println(f)
 
-	fmt.Println(xlsx.Save(f, "save.xlsx", "测试"))
+	err = xlsx.Saver{
+		Template: "tmpl.xlsx",
+		File:     "out.xlsx",
+		Sheet:    "测试",
+	}.Save(f)
+	if err != nil {
+		t.Fatal(err)
+	}
 }

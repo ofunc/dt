@@ -6,8 +6,15 @@ import (
 	"github.com/ofunc/dt"
 )
 
+// Saver is the xlsx saver.
+type Saver struct {
+	Template string
+	File     string
+	Sheet    string
+}
+
 // Save saves frame to a xlsx file.
-func Save(frame *dt.Frame, filename string, sheetname string) (err error) {
+func (a Saver) Save(frame *dt.Frame) (err error) {
 	defer func() {
 		if e := recover(); e != nil {
 			err = fmt.Errorf("%v", e)
@@ -62,14 +69,14 @@ func Save(frame *dt.Frame, filename string, sheetname string) (err error) {
 		rows = append(rows, row)
 	}
 
-	workbook, err := OpenFile(filename)
+	workbook, err := OpenFile(a.Template)
 	if err != nil {
 		return err
 	}
-	sheet := workbook.Sheet(sheetname)
+	sheet := workbook.Sheet(a.Sheet)
 	sheet.Data().Rows = rows
 	if err := sheet.Update(); err != nil {
 		return err
 	}
-	return workbook.SaveFile(filename)
+	return workbook.SaveFile(a.File)
 }
