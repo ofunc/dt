@@ -108,3 +108,15 @@ func cellValue(workbook *Workbook, cell *Cell) dt.Value {
 		return dt.String(cell.Value)
 	}
 }
+
+func emptyRow(row *Row) bool {
+	if row == nil {
+		return true
+	}
+	for _, cell := range row.Cells {
+		if strings.TrimSpace(cell.Value) != "" {
+			return false // TODO 注意sharestring ""
+		}
+	}
+	return true
+}

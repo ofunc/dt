@@ -107,6 +107,7 @@ func (a Reader) read(workbook *Workbook) (frame *dt.Frame, err error) {
 			}
 		}
 	}
+
 	keys := a.makeKeys(hs)
 	frame = dt.NewFrame(keys...)
 	lists := frame.Lists()
@@ -126,6 +127,7 @@ func (a Reader) read(workbook *Workbook) (frame *dt.Frame, err error) {
 			lists[i] = append(list, v)
 		}
 	}
+
 	n := frame.Len() - a.tail
 	if n < 0 {
 		n = 0
