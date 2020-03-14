@@ -54,13 +54,13 @@ func OpenZipReader(zr *zip.Reader) (*Workbook, error) {
 		files[f.Name] = data
 	}
 	workbook := new(Workbook)
-	if err := xml.NewDecoder(bytes.NewReader(files["xl/workbook.xml"])).Decode(workbook); err != nil {
+	if err := xml.NewDecoder(bytes.NewReader(files["xl/workbook.xml"])).Decode(workbook); err != nil && err != io.EOF {
 		return nil, err
 	}
-	if err := xml.NewDecoder(bytes.NewReader(files["xl/_rels/workbook.xml.rels"])).Decode(&workbook.rels); err != nil {
+	if err := xml.NewDecoder(bytes.NewReader(files["xl/_rels/workbook.xml.rels"])).Decode(&workbook.rels); err != nil && err != io.EOF {
 		return nil, err
 	}
-	if err := xml.NewDecoder(bytes.NewReader(files["xl/sharedStrings.xml"])).Decode(&workbook.sst); err != nil {
+	if err := xml.NewDecoder(bytes.NewReader(files["xl/sharedStrings.xml"])).Decode(&workbook.sst); err != nil && err != io.EOF {
 		return nil, err
 	}
 	// workbook.CalcID = ""

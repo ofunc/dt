@@ -89,10 +89,14 @@ func cellValue(workbook *Workbook, cell *Cell) dt.Value {
 		return nil
 	}
 	switch cell.Type {
+	case "e":
+		return nil
 	case "b":
 		return dt.Bool(cell.Value != "0")
 	case "s":
 		return dt.String(workbook.sst.Value(cell.Value))
+	case "inlineStr":
+		return dt.String(cell.Value)
 	default:
 		s := strings.TrimSpace(cell.Value)
 		if v, err := strconv.Atoi(s); err == nil {
