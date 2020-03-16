@@ -145,9 +145,13 @@ func (a Reader) makeKeys(hs [][]string) []string {
 	keys := make([]string, n)
 	xs := make([]string, len(hs))
 	for j := 0; j < n; j++ {
+		ok := false
 		for i, h := range hs {
 			if j < len(h) && h[j] != "" {
 				xs[i] = h[j]
+				ok = true
+			} else if ok {
+				xs[i] = ""
 			}
 		}
 		for _, x := range xs {
