@@ -18,6 +18,12 @@ func NewFrame(keys ...string) *Frame {
 	n := len(keys)
 	index := make(map[string]int, n)
 	for i, key := range keys {
+		for {
+			if _, ok := index[key]; !ok {
+				break
+			}
+			key = key + " "
+		}
 		index[key] = i
 	}
 	return &Frame{
