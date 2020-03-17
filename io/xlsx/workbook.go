@@ -4,9 +4,14 @@ import (
 	"archive/zip"
 	"bytes"
 	"encoding/xml"
+	"errors"
 	"io"
 	"io/ioutil"
 	"os"
+	"strconv"
+	"strings"
+
+	"github.com/ofunc/dt"
 )
 
 // Workbook is a workbook.
@@ -24,7 +29,7 @@ func OpenFile(name string) (*Workbook, error) {
 		return nil, err
 	}
 	defer zr.Close()
-	return OpenZipReader(&zr.Reader)
+	return OpenZip(&zr.Reader)
 }
 
 // OpenReader opens the workbook from a reader.
@@ -37,11 +42,11 @@ func OpenReader(r io.Reader) (*Workbook, error) {
 	if err != nil {
 		return nil, err
 	}
-	return OpenZipReader(zr)
+	return OpenZip(zr)
 }
 
-// OpenZipReader opens the workbook from a zip reader.
-func OpenZipReader(zr *zip.Reader) (*Workbook, error) {
+// OpenZip opens the workbook from a zip reader.
+func OpenZip(zr *zip.Reader) (*Workbook, error) {
 	files := make(map[string]([]byte))
 	for _, f := range zr.File {
 		data, err := readZipFile(f)
@@ -50,40 +55,53 @@ func OpenZipReader(zr *zip.Reader) (*Workbook, error) {
 		}
 		files[f.Name] = data
 	}
+
 	workbook := new(Workbook)
-	if err := xml.NewDecoder(bytes.NewReader(files["xl/workbook.xml"])).Decode(workbook); err != nil && err != io.EOF {
-		return nil, err
+	if data, ok := files["xl/workbook.xml"]; ok {
+		if err := xml.NewDecoder(bytes.NewReader(data)).Decode(workbook); err != nil {
+			return nil, err
+		}
+	} else {
+		return nil, errors.New("dt/io/xlsx: invalid xlsx file")
 	}
-	if err := xml.NewDecoder(bytes.NewReader(files["xl/_rels/workbook.xml.rels"])).Decode(&workbook.rels); err != nil && err != io.EOF {
-		return nil, err
+
+	if data, ok := files["xl/_rels/workbook.xml.rels"]; ok {
+		if err := xml.NewDecoder(bytes.NewReader(data)).Decode(&workbook.rels); err != nil {
+			return nil, err
+		}
+	} else {
+		return nil, errors.New("dt/io/xlsx: invalid xlsx file")
 	}
-	if err := xml.NewDecoder(bytes.NewReader(files["xl/sharedStrings.xml"])).Decode(&workbook.sst); err != nil && err != io.EOF {
-		return nil, err
+
+	if data, ok := files["xl/sharedStrings.xml"]; ok {
+		if err := xml.NewDecoder(bytes.NewReader(data)).Decode(&workbook.sst); err != nil {
+			return nil, err
+		}
 	}
 	workbook.files = files
 	return workbook, nil
 }
 
-// SaveFile save the workbook to a file.
-func (a *Workbook) SaveFile(name string) error {
+// WriteFile writes the workbook to a file.
+func (a *Workbook) WriteFile(name string) error {
 	f, err := os.Create(name)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
-	if err := a.SaveWriter(f); err != nil {
+	if err := a.Write(f); err != nil {
 		return err
 	}
 	return f.Sync()
 }
 
-// SaveWriter save the workbook to a writer.
-func (a *Workbook) SaveWriter(w io.Writer) error {
-	return a.SaveZipWriter(zip.NewWriter(w))
+// Write writes the workbook to a writer.
+func (a *Workbook) Write(w io.Writer) error {
+	return a.WriteZip(zip.NewWriter(w))
 }
 
-// SaveZipWriter save the workbook to a zip writer.
-func (a *Workbook) SaveZipWriter(zw *zip.Writer) error {
+// WriteZip writes the workbook to a zip writer.
+func (a *Workbook) WriteZip(zw *zip.Writer) error {
 	a.files["xl/workbook.xml"] = regCalcID.ReplaceAll(a.files["xl/workbook.xml"], []byte(`<calcPr calcId=""`))
 	for name, body := range a.files {
 		w, err := zw.Create(name)
@@ -117,4 +135,29 @@ func (a *Workbook) Sheet(name string) *Sheet {
 		}
 	}
 	return nil
+}
+
+// Value returns the cell value.
+func (a *Workbook) Value(cell *Cell) dt.Value {
+	if cell == nil {
+		return nil
+	}
+	switch cell.Type {
+	case "e":
+		return nil
+	case "b":
+		return dt.Bool(cell.Value != "0")
+	case "s":
+		return dt.String(a.sst.Value(cell.Value))
+	case "inlineStr":
+		return dt.String(cell.Value)
+	default:
+		x := strings.TrimSpace(cell.Value)
+		if len(x) < 16 {
+			if v, err := strconv.ParseFloat(x, 64); err == nil {
+				return dt.Float(v)
+			}
+		}
+		return dt.String(cell.Value)
+	}
 }

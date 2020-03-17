@@ -7,9 +7,6 @@ import (
 	"io/ioutil"
 	"regexp"
 	"strconv"
-	"strings"
-
-	"github.com/ofunc/dt"
 )
 
 var regCalcID = regexp.MustCompile(`<\s*calcPr\s+calcId\s*=\s*"\d*"`)
@@ -85,31 +82,4 @@ func readZipFile(f *zip.File) ([]byte, error) {
 	}
 	defer r.Close()
 	return ioutil.ReadAll(r)
-}
-
-func cellValue(workbook *Workbook, cell *Cell) dt.Value {
-	if cell == nil {
-		return nil
-	}
-	switch cell.Type {
-	case "e":
-		return nil
-	case "b":
-		return dt.Bool(cell.Value != "0")
-	case "s":
-		return dt.String(workbook.sst.Value(cell.Value))
-	case "inlineStr":
-		return dt.String(cell.Value)
-	default:
-		s := strings.TrimSpace(cell.Value)
-		if v, err := strconv.Atoi(s); err == nil {
-			return dt.Int(v)
-		}
-		if len(s) <= 15 {
-			if v, err := strconv.ParseFloat(s, 64); err == nil {
-				return dt.Float(v)
-			}
-		}
-		return dt.String(cell.Value)
-	}
 }

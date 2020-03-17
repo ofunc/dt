@@ -3,6 +3,7 @@ package xlsx
 import (
 	"bytes"
 	"encoding/xml"
+	"errors"
 )
 
 // Sheet is a sheet.
@@ -20,9 +21,14 @@ func (a *Sheet) Data() *Data {
 		return a.data
 	}
 	a.data = new(Data)
-	if err := xml.NewDecoder(bytes.NewBuffer(a.workbook.files["xl/"+a.target])).Decode(a.data); err != nil {
-		panic(err)
+	if data, ok := a.workbook.files["xl/"+a.target]; ok {
+		if err := xml.NewDecoder(bytes.NewBuffer(data)).Decode(a.data); err != nil {
+			panic(err)
+		}
+	} else {
+		panic(errors.New("dt/io/xlsx: invalid xlsx file"))
 	}
+
 	rows := a.data.Rows
 	i := len(rows) - 1
 	for ; i >= 0; i-- {

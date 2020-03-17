@@ -1,7 +1,7 @@
 package xlsx
 
 import (
-	"errors"
+	"archive/zip"
 	"fmt"
 	"io"
 
@@ -10,52 +10,11 @@ import (
 
 // Reader is the xlsx reader.
 type Reader struct {
-	drop  int
-	head  int
-	tail  int
-	sep   string
-	sheet string
-}
-
-// NewReader creates a new reader.
-func NewReader(sep string) Reader {
-	return Reader{
-		head: 1,
-		sep:  sep,
-	}
-}
-
-// Drop drops the first n records.
-func (a Reader) Drop(n int) Reader {
-	if n < 0 {
-		panic(errors.New("dt/io/xlsx.Reader.Drop: invalid arguments"))
-	}
-	a.drop = n
-	return a
-}
-
-// Head sets the head lines.
-func (a Reader) Head(n int) Reader {
-	if n < 1 {
-		panic(errors.New("dt/io/xlsx.Reader.Head: invalid arguments"))
-	}
-	a.head = n
-	return a
-}
-
-// Tail sets the tail lines.
-func (a Reader) Tail(n int) Reader {
-	if n < 0 {
-		panic(errors.New("dt/io/xlsx.Reader.Tail: invalid arguments"))
-	}
-	a.tail = n
-	return a
-}
-
-// Sheet sets the sheet.
-func (a Reader) Sheet(s string) Reader {
-	a.sheet = s
-	return a
+	Drop  int
+	Head  int
+	Tail  int
+	Sep   string
+	Sheet string
 }
 
 // ReadFile reads a frame from the file.
@@ -76,6 +35,15 @@ func (a Reader) Read(r io.Reader) (*dt.Frame, error) {
 	return a.read(workbook)
 }
 
+// ReadZip reads a frame from the zip.Reader.
+func (a Reader) ReadZip(zr *zip.Reader) (*dt.Frame, error) {
+	workbook, err := OpenZip(zr)
+	if err != nil {
+		return nil, err
+	}
+	return a.read(workbook)
+}
+
 func (a Reader) read(workbook *Workbook) (frame *dt.Frame, err error) {
 	defer func() {
 		if e := recover(); e != nil {
@@ -83,14 +51,18 @@ func (a Reader) read(workbook *Workbook) (frame *dt.Frame, err error) {
 		}
 	}()
 
-	rowiter := workbook.Sheet(a.sheet).Data().RowIter()
-	for i := 0; i < a.drop; i++ {
+	rowiter := workbook.Sheet(a.Sheet).Data().RowIter()
+	for i := 0; i < a.Drop; i++ {
 		if !rowiter.Next() {
 			break
 		}
 	}
 
-	hs := make([][]string, a.head)
+	head := 1
+	if a.Head > 0 {
+		head = a.Head
+	}
+	hs := make([][]string, head)
 	for i := range hs {
 		if !rowiter.Next() {
 			break
@@ -98,13 +70,10 @@ func (a Reader) read(workbook *Workbook) (frame *dt.Frame, err error) {
 		row := rowiter.Row()
 		if row != nil {
 			for celliter := row.CellIter(); celliter.Next(); {
-				cell := celliter.Cell()
-				if cell == nil {
-					hs[i] = append(hs[i], "")
-				} else if cell.Type == "s" {
-					hs[i] = append(hs[i], workbook.sst.Value(cell.Value))
+				if v := workbook.Value(celliter.Cell()); v != nil {
+					hs[i] = append(hs[i], v.String())
 				} else {
-					hs[i] = append(hs[i], cell.Value)
+					hs[i] = append(hs[i], "")
 				}
 			}
 		}
@@ -122,15 +91,13 @@ func (a Reader) read(workbook *Workbook) (frame *dt.Frame, err error) {
 		for i, list := range lists {
 			var v dt.Value
 			if celliter.Next() {
-				if cell := celliter.Cell(); cell != nil {
-					v = cellValue(workbook, cell)
-				}
+				v = workbook.Value(celliter.Cell())
 			}
 			lists[i] = append(list, v)
 		}
 	}
 
-	n := frame.Len() - a.tail
+	n := frame.Len() - a.Tail
 	if n < 0 {
 		n = 0
 	}
@@ -158,7 +125,7 @@ func (a Reader) makeKeys(hs [][]string) []string {
 			if keys[j] == "" {
 				keys[j] = x
 			} else if x != "" {
-				keys[j] = keys[j] + a.sep + x
+				keys[j] = keys[j] + a.Sep + x
 			}
 		}
 	}

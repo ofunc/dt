@@ -8,17 +8,22 @@ import (
 )
 
 func TestXLSX(t *testing.T) {
-	f, err := xlsx.NewReader("/").Drop(1).Head(3).Tail(1).ReadFile("新建文档2020-03-14 17_56_39.xlsx")
+	f, err := xlsx.Reader{
+		Sep:  "/",
+		Drop: 1,
+		Head: 3,
+		Tail: 1,
+	}.ReadFile("新建文档2020-03-14 17_56_39.xlsx")
 	if err != nil {
 		t.Fatal(err)
 	}
 	fmt.Println(f)
 
-	err = xlsx.Saver{
+	err = xlsx.Writer{
 		Template: "tmpl.xlsx",
 		File:     "out.xlsx",
 		Sheet:    "测试",
-	}.Save(f)
+	}.WriteFile(f)
 	if err != nil {
 		t.Fatal(err)
 	}

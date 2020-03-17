@@ -6,15 +6,15 @@ import (
 	"github.com/ofunc/dt"
 )
 
-// Saver is the xlsx saver.
-type Saver struct {
+// Writer is the xlsx writer.
+type Writer struct {
 	Template string
 	File     string
 	Sheet    string
 }
 
-// Save saves frame to a xlsx file.
-func (a Saver) Save(frame *dt.Frame) (err error) {
+// WriteFile writes frame to a xlsx file.
+func (a Writer) WriteFile(frame *dt.Frame) (err error) {
 	defer func() {
 		if e := recover(); e != nil {
 			err = fmt.Errorf("%v", e)
@@ -53,16 +53,14 @@ func (a Saver) Save(frame *dt.Frame) (err error) {
 				cell.Value = value.String()
 			}
 			switch value.(type) {
-			case dt.Int:
-				cell.Type = "n"
+			case nil:
+				cell.Type = "e"
 			case dt.Float:
 				cell.Type = "n"
 			case dt.Bool:
 				cell.Type = "b"
-			case dt.String:
-				cell.Type = "inlineStr"
 			default:
-				cell.Type = "e"
+				cell.Type = "inlineStr"
 			}
 			row.Cells = append(row.Cells, cell)
 		}
@@ -78,5 +76,5 @@ func (a Saver) Save(frame *dt.Frame) (err error) {
 	if err := sheet.Update(); err != nil {
 		return err
 	}
-	return workbook.SaveFile(a.File)
+	return workbook.WriteFile(a.File)
 }
