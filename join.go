@@ -41,36 +41,38 @@ func (a Join) Do(lprefix, rprefix string) *Frame {
 		panic(errors.New("dt.Join: keys can not be empty"))
 	}
 
-	n, m := len(a.lframe.lists), a.lframe.Len()
-	frame := &Frame{
-		index: make(map[string]int, n+len(a.rframe.lists)),
-		lists: make([]List, n+len(a.rframe.lists)),
-	}
-	copy(frame.lists, a.lframe.lists)
+	m := len(a.lframe.lists)
+	keys := make([]string, m+len(a.rframe.lists))
 	for key, i := range a.lframe.index {
-		frame.index[lprefix+key] = i
+		keys[i] = lprefix + key
 	}
 	for key, i := range a.rframe.index {
-		frame.index[rprefix+key] = n + i
-		frame.lists[n+i] = make(List, m)
+		keys[i+m] = rprefix + key
+	}
+	frame := NewFrame(keys...)
+	copy(frame.lists, a.lframe.lists)
+
+	n := a.lframe.Len()
+	for i := range a.rframe.lists {
+		frame.lists[i+m] = make(List, n)
 	}
 
-	idx := a.index(a.rframe)
 	typ := reflect.ArrayOf(len(a.lkeys), tvalue)
+	idx := a.index(typ)
 	for iter := a.lframe.Iter(); iter.Next(); {
 		r := iter.Record().(record)
 		if i, ok := idx[makeKey(typ, r, a.lkeys)]; ok {
 			for j, l := range a.rframe.lists {
-				frame.lists[n+j][r.index] = l[i]
+				frame.lists[m+j][r.index] = l[i]
 			}
 		}
 	}
 	return frame
 }
 
-func (a Join) index(frame *Frame) map[interface{}]int {
+func (a Join) index(typ reflect.Type) map[interface{}]int {
+	frame := a.rframe
 	idx := make(map[interface{}]int, frame.Len())
-	typ := reflect.ArrayOf(len(a.rkeys), tvalue)
 	for iter := frame.Iter(); iter.Next(); {
 		r := iter.Record().(record)
 		idx[makeKey(typ, r, a.rkeys)] = r.index
