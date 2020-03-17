@@ -16,80 +16,13 @@ import (
 
 // Reader is the CSV reader.
 type Reader struct {
-	drop             int
-	head             int
-	tail             int
-	sep              string
-	comma            rune
-	comment          rune
-	lazyQuotes       bool
-	trimLeadingSpace bool
-	transformer      transform.Transformer
-}
-
-// NewReader creates a new reader.
-func NewReader(sep string) Reader {
-	return Reader{
-		head: 1,
-		sep:  sep,
-	}
-}
-
-// Drop drops the first n records.
-func (a Reader) Drop(n int) Reader {
-	if n < 0 {
-		panic(errors.New("dt/io/csv.Reader.Drop: invalid arguments"))
-	}
-	a.drop = n
-	return a
-}
-
-// Head sets the head lines.
-func (a Reader) Head(n int) Reader {
-	if n < 1 {
-		panic(errors.New("dt/io/csv.Reader.Head: invalid arguments"))
-	}
-	a.head = n
-	return a
-}
-
-// Tail sets the tail lines.
-func (a Reader) Tail(n int) Reader {
-	if n < 0 {
-		panic(errors.New("dt/io/csv.Reader.Tail: invalid arguments"))
-	}
-	a.tail = n
-	return a
-}
-
-// Comma sets the comma.
-func (a Reader) Comma(v rune) Reader {
-	a.comma = v
-	return a
-}
-
-// Comment sets the comment.
-func (a Reader) Comment(v rune) Reader {
-	a.comment = v
-	return a
-}
-
-// LazyQuotes sets the lazy quotes.
-func (a Reader) LazyQuotes(v bool) Reader {
-	a.lazyQuotes = v
-	return a
-}
-
-// TrimLeadingSpace sets the trim leading space.
-func (a Reader) TrimLeadingSpace(v bool) Reader {
-	a.trimLeadingSpace = v
-	return a
-}
-
-// Transformer sets the transformer.
-func (a Reader) Transformer(v transform.Transformer) Reader {
-	a.transformer = v
-	return a
+	Drop             int
+	Tail             int
+	Comma            rune
+	Comment          rune
+	LazyQuotes       bool
+	TrimLeadingSpace bool
+	Transformer      transform.Transformer
 }
 
 // ReadFile reads a frame from the file.
@@ -104,25 +37,33 @@ func (a Reader) ReadFile(name string) (*dt.Frame, error) {
 
 // Read reads a frame from the io.Reader.
 func (a Reader) Read(r io.Reader) (*dt.Frame, error) {
-	cr := csv.NewReader(a.reader(r))
-	if a.comma != 0 {
-		cr.Comma = a.comma
+	var err error
+	r, err = a.reader(r)
+	if err != nil {
+		return nil, err
 	}
-	cr.Comment = a.comment
-	cr.LazyQuotes = a.lazyQuotes
-	cr.TrimLeadingSpace = a.trimLeadingSpace
+	cr := csv.NewReader(r)
+	if a.Comma != 0 {
+		cr.Comma = a.Comma
+	}
+	cr.Comment = a.Comment
+	cr.LazyQuotes = a.LazyQuotes
+	cr.TrimLeadingSpace = a.TrimLeadingSpace
 
 	rs, err := cr.ReadAll()
 	if err != nil {
 		return nil, err
 	}
-	rs = rs[a.drop:]
+	rs = rs[a.Drop:]
 	rs = cutEmpty(rs)
-	rs = rs[:len(rs)-a.tail]
+	rs = rs[:len(rs)-a.Tail]
+	if len(rs) < 1 {
+		return nil, errors.New("dt/io/csv.Reader: empty data")
+	}
 
-	frame := makeFrame(rs[:a.head], a.sep)
+	frame := dt.NewFrame(rs[0]...)
 	lists := frame.Lists()
-	for _, r := range rs[a.head:] {
+	for _, r := range rs[1:] {
 		for i, l := range lists {
 			lists[i] = append(l, value(r, i))
 		}
@@ -130,21 +71,21 @@ func (a Reader) Read(r io.Reader) (*dt.Frame, error) {
 	return frame, nil
 }
 
-func (a Reader) reader(r io.Reader) io.Reader {
-	if a.transformer != nil {
-		r = transform.NewReader(r, a.transformer)
+func (a Reader) reader(r io.Reader) (io.Reader, error) {
+	if a.Transformer != nil {
+		r = transform.NewReader(r, a.Transformer)
 	}
 	br := bufio.NewReader(r)
 	xs, err := br.Peek(3)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	if bytes.Equal(xs, []byte{0xef, 0xbb, 0xbf}) {
 		if _, err := br.Discard(3); err != nil {
-			panic(err)
+			return nil, err
 		}
 	}
-	return br
+	return br, nil
 }
 
 func value(r []string, i int) dt.Value {
@@ -152,11 +93,10 @@ func value(r []string, i int) dt.Value {
 		return nil
 	}
 	x := strings.TrimSpace(r[i])
-	if v, err := strconv.ParseInt(x, 10, 64); err == nil {
-		return dt.Int(v)
-	}
-	if v, err := strconv.ParseFloat(x, 64); err == nil {
-		return dt.Float(v)
+	if len(x) < 16 {
+		if v, err := strconv.ParseFloat(x, 64); err == nil {
+			return dt.Float(v)
+		}
 	}
 	if x == "true" || x == "TRUE" {
 		return dt.Bool(true)
@@ -184,31 +124,4 @@ func isEmpty(r []string) bool {
 		}
 	}
 	return true
-}
-
-func makeFrame(rs [][]string, sep string) *dt.Frame {
-	r := rs[len(rs)-1]
-	frame := dt.NewFrame()
-	for i := range r {
-		frame.Set(makeKey(rs, i, sep), nil)
-	}
-	return frame
-}
-
-func makeKey(rs [][]string, i int, sep string) string {
-	key := ""
-	for _, r := range rs {
-		n := len(r)
-		for j := i; j >= 0; j-- {
-			if j < n && r[j] != "" {
-				if key == "" {
-					key = r[j]
-				} else {
-					key = key + sep + r[j]
-				}
-				break
-			}
-		}
-	}
-	return key
 }
