@@ -19,14 +19,11 @@ func (a Group) Apply(prefix string, key string, f func(List) Value) Group {
 
 // Do does the group.
 func (a Group) Do() *Frame {
-	index := make(map[string]int, len(a.keys))
-	for j, key := range a.keys {
-		index[a.prefixes[j]+key] = j
+	keys := make([]string, len(a.keys))
+	for i, key := range a.keys {
+		keys[i] = a.prefixes[i] + key
 	}
-	frame := &Frame{
-		index: index,
-		lists: make([]List, len(a.keys)),
-	}
+	frame := NewFrame(keys...)
 
 	for _, is := range a.data {
 		for j, key := range a.keys {
