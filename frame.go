@@ -46,23 +46,16 @@ func (a *Frame) Like() *Frame {
 
 // Copy makes a copy of frame a.
 func (a *Frame) Copy(deep bool) *Frame {
-	index := make(map[string]int, len(a.lists))
-	lists := make([]List, len(a.lists))
-	copy(lists, a.lists)
+	b := a.Like()
+	copy(b.lists, a.lists)
 	if deep {
-		for i, l := range lists {
+		for i, l := range b.lists {
 			t := make(List, len(l))
 			copy(t, l)
-			lists[i] = t
+			b.lists[i] = t
 		}
 	}
-	for key, i := range a.index {
-		index[key] = i
-	}
-	return &Frame{
-		index: index,
-		lists: lists,
-	}
+	return b
 }
 
 // Keys returns the keys of frame a.
@@ -117,15 +110,12 @@ func (a *Frame) Add(key string, list List) {
 }
 
 // Del deletes the list by key.
-func (a *Frame) Del(key string) List {
+func (a *Frame) Del(key string) {
 	if i, ok := a.index[key]; ok {
-		list := a.lists[i]
 		delete(a.index, key)
 		copy(a.lists[i:], a.lists[i+1:])
 		a.lists = a.lists[:len(a.lists)-1]
-		return list
 	}
-	return nil
 }
 
 // Pick picks some lists and returns a new frame,
@@ -151,8 +141,8 @@ func (a *Frame) Iter() *Iter {
 // Slice gets the slice of frame a.
 func (a *Frame) Slice(i, j int) *Frame {
 	b := a.Copy(false)
-	for i, list := range b.lists {
-		b.lists[i] = list[i:j]
+	for k, list := range b.lists {
+		b.lists[k] = list[i:j]
 	}
 	return b
 }

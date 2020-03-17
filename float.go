@@ -8,11 +8,6 @@ import (
 // Float is a float64 value.
 type Float float64
 
-// Int returns as a int value.
-func (a Float) Int() int {
-	return int(math.Round(float64(a)))
-}
-
 // Float returns as a float64 value.
 func (a Float) Float() float64 {
 	return float64(a)

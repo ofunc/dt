@@ -7,7 +7,6 @@ import (
 // Record is the record interface.
 type Record interface {
 	Value(key string) Value
-	Int(key string) int
 	Float(key string) float64
 	Bool(key string) bool
 	String(key string) string
@@ -25,14 +24,6 @@ func (a record) Value(key string) Value {
 		return a.frame.lists[i][a.index]
 	}
 	return nil
-}
-
-// Int returns the int value by key.
-func (a record) Int(key string) int {
-	if v := a.Value(key); v != nil {
-		return v.Int()
-	}
-	return 0
 }
 
 // Float returns the float64 value by key.

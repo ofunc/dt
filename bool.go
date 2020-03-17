@@ -7,14 +7,6 @@ import (
 // Bool is a int value.
 type Bool bool
 
-// Int returns as a int value.
-func (a Bool) Int() int {
-	if a {
-		return 1
-	}
-	return 0
-}
-
 // Float returns as a float64 value.
 func (a Bool) Float() float64 {
 	if a {

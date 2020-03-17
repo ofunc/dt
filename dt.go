@@ -55,14 +55,14 @@ func Std(l List) Value {
 	return l.Std()
 }
 
-// Max returns the max of list l.
-func Max(l List) Value {
-	return l.Max()
-}
-
 // Min returns the min of list l.
 func Min(l List) Value {
 	return l.Min()
+}
+
+// Max returns the max of list l.
+func Max(l List) Value {
+	return l.Max()
 }
 
 func makeKey(t reflect.Type, r Record, keys []string) interface{} {
