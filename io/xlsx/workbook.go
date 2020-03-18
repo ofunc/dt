@@ -153,7 +153,7 @@ func (a *Workbook) Value(cell *Cell) dt.Value {
 		return dt.String(cell.Value)
 	default:
 		x := strings.TrimSpace(cell.Value)
-		if len(x) < 16 {
+		if len(x) < 16 || !regDigits.MatchString(x) {
 			if v, err := strconv.ParseFloat(x, 64); err == nil {
 				return dt.Float(v)
 			}

@@ -10,6 +10,7 @@ import (
 )
 
 var regCalcID = regexp.MustCompile(`<\s*calcPr\s+calcId\s*=\s*"\d*"`)
+var regDigits = regexp.MustCompile(`^\d+$`)
 
 // RowRef returns the row ref by index.
 func RowRef(i int) string {
