@@ -64,6 +64,9 @@ func OpenZip(zr *zip.Reader) (*Workbook, error) {
 	} else {
 		return nil, errors.New("dt/io/xlsx: invalid xlsx file")
 	}
+	if len(workbook.Sheets) < 1 {
+		return nil, errors.New("dt/io/xlsx: no sheet")
+	}
 
 	if data, ok := files["xl/_rels/workbook.xml.rels"]; ok {
 		if err := xml.NewDecoder(bytes.NewReader(data)).Decode(&workbook.rels); err != nil {
@@ -134,7 +137,7 @@ func (a *Workbook) Sheet(name string) *Sheet {
 			return sheet
 		}
 	}
-	return nil
+	panic(errors.New("dt/io/xlsx: sheet not found: " + name))
 }
 
 // Value returns the cell value.
