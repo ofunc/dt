@@ -30,13 +30,12 @@ func (a *Sheet) Data() *Data {
 	}
 
 	rows := a.data.Rows
-	i := len(rows) - 1
-	for ; i >= 0; i-- {
+	for i := len(rows) - 1; i >= 0; i-- {
 		if row := rows[i]; row != nil && !row.IsEmpty() {
+			a.data.Rows = rows[:i+1]
 			break
 		}
 	}
-	a.data.Rows = rows[:i+1]
 	return a.data
 }
 

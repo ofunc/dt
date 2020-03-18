@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/ofunc/dt"
 )
@@ -79,7 +80,7 @@ func (a Reader) read(workbook *Workbook) (frame *dt.Frame, err error) {
 		}
 	}
 
-	keys := a.makeKeys(hs)
+	keys := a.makeKeys(cleanHeads(hs))
 	frame = dt.NewFrame(keys...)
 	lists := frame.Lists()
 	for rowiter.Next() {
@@ -130,4 +131,16 @@ func (a Reader) makeKeys(hs [][]string) []string {
 		}
 	}
 	return keys
+}
+
+func cleanHeads(hs [][]string) [][]string {
+	for i, h := range hs {
+		for j := len(h) - 1; j >= 0; j-- {
+			if strings.TrimSpace(h[j]) != "" {
+				hs[i] = h[:j+1]
+				break
+			}
+		}
+	}
+	return hs
 }
