@@ -7,6 +7,9 @@ import (
 	"io/ioutil"
 	"regexp"
 	"strconv"
+	"time"
+
+	"github.com/ofunc/dt"
 )
 
 var regCalcID = regexp.MustCompile(`<\s*calcPr\s+calcId\s*=\s*"\d*"`)
@@ -74,6 +77,16 @@ func CellIndex(r string) (int, int) {
 		}
 	}
 	return RowIndex(r[k:]), ColIndex(r[:k])
+}
+
+// Time converts a dt.Value to time.Time.
+func Time(v dt.Value) time.Time {
+	return time.Unix(int64((v.Float()-25569)*86400), 0).UTC()
+}
+
+// Value converts a time.Time to dt.Value.
+func Value(v time.Time) dt.Value {
+	return dt.Float(v.Unix())/86400 + 25569
 }
 
 func readZipFile(f *zip.File) ([]byte, error) {
