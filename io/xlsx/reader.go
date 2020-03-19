@@ -142,5 +142,11 @@ func cleanHeads(hs [][]string) [][]string {
 			}
 		}
 	}
+	for i := len(hs) - 1; i >= 0; i-- {
+		if len(hs[i]) > 0 {
+			hs = hs[:i+1]
+			break
+		}
+	}
 	return hs
 }
