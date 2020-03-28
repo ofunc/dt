@@ -5,9 +5,11 @@ import (
 	"bytes"
 	"encoding/xml"
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -24,6 +26,15 @@ type Workbook struct {
 
 // OpenFile opens the workbook from a file.
 func OpenFile(name string) (*Workbook, error) {
+	if ext := strings.ToLower(filepath.Ext(name)); ext != ".xlsx" {
+		target := filepath.Join(os.TempDir(), fmt.Sprintf("dt_io_excel_%v.xlsx", rnd.Int()))
+		if err := saveAs(target, name); err != nil {
+			return nil, err
+		}
+		defer os.Remove(target)
+		return OpenFile(target)
+	}
+
 	zr, err := zip.OpenReader(name)
 	if err != nil {
 		return nil, err

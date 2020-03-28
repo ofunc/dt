@@ -5,12 +5,18 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"math/rand"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"time"
 
+	"github.com/go-ole/go-ole"
+	"github.com/go-ole/go-ole/oleutil"
 	"github.com/ofunc/dt"
 )
+
+var rnd = rand.New(rand.NewSource(time.Now().Unix()))
 
 var regCalcID = regexp.MustCompile(`<\s*calcPr\s+calcId\s*=\s*"\d*"`)
 var regDigits = regexp.MustCompile(`^\d+$`)
@@ -96,4 +102,51 @@ func readZipFile(f *zip.File) ([]byte, error) {
 	}
 	defer r.Close()
 	return ioutil.ReadAll(r)
+}
+
+func saveAs(tar, src string) error {
+	ole.CoInitializeEx(0, ole.COINIT_APARTMENTTHREADED)
+	defer ole.CoUninitialize()
+
+	unknown, err := oleutil.CreateObject("Excel.Application")
+	if err != nil {
+		return err
+	}
+	app, err := unknown.QueryInterface(ole.IID_IDispatch)
+	if err != nil {
+		return err
+	}
+	defer app.Release()
+	defer app.CallMethod("Quit")
+
+	if _, err := app.PutProperty("DisplayAlerts", false); err != nil {
+		return err
+	}
+	if _, err := app.PutProperty("Visible", false); err != nil {
+		return err
+	}
+
+	olevar, err := app.GetProperty("Workbooks")
+	if err != nil {
+		return err
+	}
+	workbooks := olevar.ToIDispatch()
+
+	src, err = filepath.Abs(src)
+	if err != nil {
+		return err
+	}
+	olevar, err = workbooks.CallMethod("Open", src)
+	if err != nil {
+		return err
+	}
+	file := olevar.ToIDispatch()
+
+	if _, err := file.CallMethod("SaveAs", tar, 51); err != nil {
+		return err
+	}
+	if _, err := file.CallMethod("Close"); err != nil {
+		return err
+	}
+	return nil
 }
