@@ -118,6 +118,31 @@ func (a *Workbook) WriteZip(zw *zip.Writer) error {
 	return zw.Close()
 }
 
+// Value returns the value by ref.
+func (a *Workbook) Value(sheet string, ref string) (v dt.Value) {
+	defer recover()
+	ref = strings.ToUpper(ref)
+	ri, ci := CellIndex(ref)
+	rr := RowRef(ri)
+	data := a.sheet(sheet).data()
+	for i, row := range data.Rows {
+		if i > ri {
+			return
+		}
+		if row.Ref == rr {
+			for j, cell := range row.Cells {
+				if j > ci {
+					return
+				}
+				if cell.Ref == ref {
+					return a.value(cell)
+				}
+			}
+		}
+	}
+	return
+}
+
 func (a *Workbook) sheet(name string) *Sheet {
 	if name == "" {
 		return a.sheet(a.Sheets[0].Name)
