@@ -24,7 +24,7 @@ func (a Reader) ReadFile(name string) (*dt.Frame, error) {
 	if err != nil {
 		return nil, err
 	}
-	return a.read(workbook)
+	return a.ReadWorkbook(workbook)
 }
 
 // Read reads a frame from the io.Reader.
@@ -33,7 +33,7 @@ func (a Reader) Read(r io.Reader) (*dt.Frame, error) {
 	if err != nil {
 		return nil, err
 	}
-	return a.read(workbook)
+	return a.ReadWorkbook(workbook)
 }
 
 // ReadZip reads a frame from the zip.Reader.
@@ -42,10 +42,11 @@ func (a Reader) ReadZip(zr *zip.Reader) (*dt.Frame, error) {
 	if err != nil {
 		return nil, err
 	}
-	return a.read(workbook)
+	return a.ReadWorkbook(workbook)
 }
 
-func (a Reader) read(workbook *Workbook) (frame *dt.Frame, err error) {
+// ReadWorkbook reads a frame from the workbook.
+func (a Reader) ReadWorkbook(workbook *Workbook) (frame *dt.Frame, err error) {
 	defer func() {
 		if e := recover(); e != nil {
 			err = fmt.Errorf("%v", e)
