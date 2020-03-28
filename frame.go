@@ -89,33 +89,36 @@ func (a *Frame) Get(key string) List {
 }
 
 // Set sets the list by key.
-func (a *Frame) Set(key string, list List) {
+func (a *Frame) Set(key string, list List) *Frame {
 	a.check(list)
 	if i, ok := a.index[key]; ok {
 		a.lists[i] = list
 	}
 	a.index[key] = len(a.lists)
 	a.lists = append(a.lists, list)
+	return a
 }
 
 // Add adds the list with key.
-func (a *Frame) Add(key string, list List) {
+func (a *Frame) Add(key string, list List) *Frame {
 	if _, ok := a.index[key]; ok {
-		a.Add(key+" ", list)
-		return
+		return a.Add(key+" ", list)
+
 	}
 	a.check(list)
 	a.index[key] = len(a.lists)
 	a.lists = append(a.lists, list)
+	return a
 }
 
 // Del deletes the list by key.
-func (a *Frame) Del(key string) {
+func (a *Frame) Del(key string) *Frame {
 	if i, ok := a.index[key]; ok {
 		delete(a.index, key)
 		copy(a.lists[i:], a.lists[i+1:])
 		a.lists = a.lists[:len(a.lists)-1]
 	}
+	return a
 }
 
 // Pick picks some lists and returns a new frame,
