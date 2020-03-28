@@ -71,9 +71,9 @@ func (a Writer) WriteFile(frame *dt.Frame) (err error) {
 	if err != nil {
 		return err
 	}
-	sheet := workbook.Sheet(a.Sheet)
-	sheet.Data().Rows = rows
-	if err := sheet.Update(); err != nil {
+	sheet := workbook.sheet(a.Sheet)
+	sheet.data().Rows = rows
+	if err := sheet.update(); err != nil {
 		return err
 	}
 	return workbook.WriteFile(a.File)

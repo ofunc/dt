@@ -118,10 +118,9 @@ func (a *Workbook) WriteZip(zw *zip.Writer) error {
 	return zw.Close()
 }
 
-// Sheet returns the sheet by name.
-func (a *Workbook) Sheet(name string) *Sheet {
+func (a *Workbook) sheet(name string) *Sheet {
 	if name == "" {
-		return a.Sheet(a.Sheets[0].Name)
+		return a.sheet(a.Sheets[0].Name)
 	}
 	for _, sheet := range a.Sheets {
 		if sheet.Name == name {
@@ -140,8 +139,7 @@ func (a *Workbook) Sheet(name string) *Sheet {
 	panic(errors.New("dt/io/xlsx: sheet not found: " + name))
 }
 
-// Value returns the cell value.
-func (a *Workbook) Value(cell *Cell) dt.Value {
+func (a *Workbook) value(cell *Cell) dt.Value {
 	if cell == nil {
 		return nil
 	}
@@ -151,7 +149,7 @@ func (a *Workbook) Value(cell *Cell) dt.Value {
 	case "b":
 		return dt.Bool(cell.Value != "0")
 	case "s":
-		return dt.String(a.sst.Value(cell.Value))
+		return dt.String(a.sst.value(cell.Value))
 	case "inlineStr":
 		return dt.String(cell.Value)
 	default:

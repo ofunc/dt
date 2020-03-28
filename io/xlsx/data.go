@@ -10,8 +10,7 @@ type Data struct {
 	Rows    []*Row `xml:"sheetData>row"`
 }
 
-// RowIter returns the row iter.
-func (a *Data) RowIter() *RowIter {
+func (a *Data) rowIter() *RowIter {
 	return &RowIter{
 		i:    -1,
 		j:    -1,

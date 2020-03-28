@@ -10,8 +10,7 @@ type Row struct {
 	Cells []*Cell `xml:"c"`
 }
 
-// CellIter returns the cell iter.
-func (a *Row) CellIter() *CellIter {
+func (a *Row) cellIter() *CellIter {
 	return &CellIter{
 		i:     -1,
 		j:     -1,
@@ -20,8 +19,7 @@ func (a *Row) CellIter() *CellIter {
 	}
 }
 
-// IsEmpty checks if a is empty.
-func (a *Row) IsEmpty() bool {
+func (a *Row) isEmpty() bool {
 	if a == nil {
 		return true
 	}

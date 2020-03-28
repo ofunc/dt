@@ -12,8 +12,7 @@ type RowIter struct {
 	rows []*Row
 }
 
-// Next checks if has next row.
-func (a *RowIter) Next() bool {
+func (a *RowIter) next() bool {
 	a.i++
 	if a.i <= a.r {
 		return true
@@ -29,8 +28,7 @@ func (a *RowIter) Next() bool {
 	return true
 }
 
-// Row returns the current row.
-func (a *RowIter) Row() *Row {
+func (a *RowIter) row() *Row {
 	if a.i < a.r {
 		return nil
 	}

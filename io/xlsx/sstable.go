@@ -16,8 +16,7 @@ type SItem struct {
 	Texts []string `xml:"r>t"`
 }
 
-// Value returns the shared string value.
-func (a SSTable) Value(v string) string {
+func (a SSTable) value(v string) string {
 	if i, err := strconv.Atoi(v); err == nil {
 		if i < len(a.Items) {
 			item := a.Items[i]

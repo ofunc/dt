@@ -13,8 +13,7 @@ type CellIter struct {
 	cells []*Cell
 }
 
-// Next checks if has next cell.
-func (a *CellIter) Next() bool {
+func (a *CellIter) next() bool {
 	a.i++
 	if a.i <= a.c {
 		return true
@@ -30,8 +29,7 @@ func (a *CellIter) Next() bool {
 	return true
 }
 
-// Cell returns the current cell.
-func (a *CellIter) Cell() *Cell {
+func (a *CellIter) cell() *Cell {
 	if a.i < a.c {
 		return nil
 	}

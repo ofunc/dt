@@ -53,9 +53,9 @@ func (a Reader) ReadWorkbook(workbook *Workbook) (frame *dt.Frame, err error) {
 		}
 	}()
 
-	rowiter := workbook.Sheet(a.Sheet).Data().RowIter()
+	rowiter := workbook.sheet(a.Sheet).data().rowIter()
 	for i := 0; i < a.Drop; i++ {
-		if !rowiter.Next() {
+		if !rowiter.next() {
 			break
 		}
 	}
@@ -66,13 +66,13 @@ func (a Reader) ReadWorkbook(workbook *Workbook) (frame *dt.Frame, err error) {
 	}
 	hs := make([][]string, head)
 	for i := range hs {
-		if !rowiter.Next() {
+		if !rowiter.next() {
 			break
 		}
-		row := rowiter.Row()
+		row := rowiter.row()
 		if row != nil {
-			for celliter := row.CellIter(); celliter.Next(); {
-				if v := workbook.Value(celliter.Cell()); v != nil {
+			for celliter := row.cellIter(); celliter.next(); {
+				if v := workbook.value(celliter.cell()); v != nil {
 					hs[i] = append(hs[i], v.String())
 				} else {
 					hs[i] = append(hs[i], "")
@@ -84,16 +84,16 @@ func (a Reader) ReadWorkbook(workbook *Workbook) (frame *dt.Frame, err error) {
 	keys := a.makeKeys(cleanHeads(hs))
 	frame = dt.NewFrame(keys...)
 	lists := frame.Lists()
-	for rowiter.Next() {
-		row := rowiter.Row()
+	for rowiter.next() {
+		row := rowiter.row()
 		if row == nil {
 			continue
 		}
-		celliter := row.CellIter()
+		celliter := row.cellIter()
 		for i, list := range lists {
 			var v dt.Value
-			if celliter.Next() {
-				v = workbook.Value(celliter.Cell())
+			if celliter.next() {
+				v = workbook.value(celliter.cell())
 			}
 			lists[i] = append(list, v)
 		}
