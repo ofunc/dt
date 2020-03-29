@@ -80,6 +80,16 @@ func (a *Frame) Len() int {
 	return len(a.lists[0])
 }
 
+// Has checks if the frame has the keys.
+func (a *Frame) Has(keys ...string) bool {
+	for _, key := range keys {
+		if _, ok := a.index[key]; !ok {
+			return false
+		}
+	}
+	return true
+}
+
 // Get gets the list by key.
 func (a *Frame) Get(key string) List {
 	if i, ok := a.index[key]; ok {
