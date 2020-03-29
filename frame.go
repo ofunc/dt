@@ -205,6 +205,13 @@ func (a *Frame) Map(f func(Record) Value) List {
 	return list
 }
 
+// MapTo maps frame a to the key list.
+func (a *Frame) MapTo(key string, f func(Record) Value) *Frame {
+	list := a.Map(f)
+	a.Set(key, list)
+	return a
+}
+
 // Filter filters the frame with function f.
 func (a *Frame) Filter(f func(Record) bool) *Frame {
 	b := a.Like()
