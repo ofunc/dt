@@ -131,6 +131,15 @@ func (a *Frame) Del(key string) *Frame {
 	return a
 }
 
+// Rename renames the key.
+func (a *Frame) Rename(old, new string) *Frame {
+	if i, ok := a.index[old]; ok {
+		delete(a.index, old)
+		a.index[new] = i
+	}
+	return a
+}
+
 // Pick picks some lists and returns a new frame,
 func (a *Frame) Pick(keys ...string) *Frame {
 	if len(keys) == 0 {
