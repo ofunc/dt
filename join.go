@@ -14,26 +14,26 @@ type Join struct {
 }
 
 // Keys sets the left keys and right keys.
-func (a Join) Keys(keys ...string) Join {
+func (a *Join) Keys(keys ...string) *Join {
 	a.lkeys = keys
 	a.rkeys = keys
 	return a
 }
 
 // LKeys sets the left keys.
-func (a Join) LKeys(keys ...string) Join {
+func (a *Join) LKeys(keys ...string) *Join {
 	a.lkeys = keys
 	return a
 }
 
 // RKeys sets the right keys.
-func (a Join) RKeys(keys ...string) Join {
+func (a *Join) RKeys(keys ...string) *Join {
 	a.rkeys = keys
 	return a
 }
 
 // Do does the join operation.
-func (a Join) Do(lprefix, rprefix string) *Frame {
+func (a *Join) Do(lprefix, rprefix string) *Frame {
 	if len(a.lkeys) != len(a.rkeys) {
 		panic(errors.New("dt.Join: number of the left keys not equals to the right keys"))
 	}
@@ -70,7 +70,7 @@ func (a Join) Do(lprefix, rprefix string) *Frame {
 	return frame
 }
 
-func (a Join) index(typ reflect.Type) map[interface{}]int {
+func (a *Join) index(typ reflect.Type) map[interface{}]int {
 	frame := a.rframe
 	idx := make(map[interface{}]int, frame.Len())
 	for iter := frame.Iter(); iter.Next(); {

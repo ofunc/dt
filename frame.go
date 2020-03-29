@@ -253,15 +253,15 @@ func (a *Frame) FillNA(value Value, keys ...string) *Frame {
 }
 
 // Join joins frame a and b.
-func (a *Frame) Join(b *Frame) Join {
-	return Join{
+func (a *Frame) Join(b *Frame) *Join {
+	return &Join{
 		lframe: a,
 		rframe: b,
 	}
 }
 
 // Group groups records by keys.
-func (a *Frame) Group(keys ...string) Group {
+func (a *Frame) Group(keys ...string) *Group {
 	data := make(map[interface{}]([]int))
 	typ := reflect.ArrayOf(len(keys), tvalue)
 	for iter := a.Iter(); iter.Next(); {
@@ -269,10 +269,14 @@ func (a *Frame) Group(keys ...string) Group {
 		k := makeKey(typ, r, keys)
 		data[k] = append(data[k], r.index)
 	}
-	return Group{
+	g := &Group{
 		frame: a,
 		data:  data,
 	}
+	for _, key := range keys {
+		g.Apply("", key, First)
+	}
+	return g
 }
 
 // String shows frame a as string.

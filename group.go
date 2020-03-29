@@ -10,7 +10,7 @@ type Group struct {
 }
 
 // Apply applies the aggregate function to group a.
-func (a Group) Apply(prefix string, key string, f func(List) Value) Group {
+func (a *Group) Apply(prefix string, key string, f func(List) Value) *Group {
 	a.keys = append(a.keys, key)
 	a.prefixes = append(a.prefixes, prefix)
 	a.funcs = append(a.funcs, f)
@@ -18,7 +18,7 @@ func (a Group) Apply(prefix string, key string, f func(List) Value) Group {
 }
 
 // Do does the group.
-func (a Group) Do() *Frame {
+func (a *Group) Do() *Frame {
 	keys := make([]string, len(a.keys))
 	for i, key := range a.keys {
 		keys[i] = a.prefixes[i] + key
