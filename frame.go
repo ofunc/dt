@@ -45,15 +45,13 @@ func (a *Frame) Like() *Frame {
 }
 
 // Copy makes a copy of frame a.
-func (a *Frame) Copy(deep bool) *Frame {
+func (a *Frame) Copy() *Frame {
 	b := a.Like()
 	copy(b.lists, a.lists)
-	if deep {
-		for i, l := range b.lists {
-			t := make(List, len(l))
-			copy(t, l)
-			b.lists[i] = t
-		}
+	for i, l := range b.lists {
+		t := make(List, len(l))
+		copy(t, l)
+		b.lists[i] = t
 	}
 	return b
 }
@@ -143,7 +141,7 @@ func (a *Frame) Rename(old, new string) *Frame {
 // Pick picks some lists and returns a new frame,
 func (a *Frame) Pick(keys ...string) *Frame {
 	if len(keys) == 0 {
-		return a
+		keys = a.Keys()
 	}
 	b := NewFrame()
 	for _, key := range keys {
@@ -162,7 +160,7 @@ func (a *Frame) Iter() *Iter {
 
 // Slice gets the slice of frame a.
 func (a *Frame) Slice(i, j int) *Frame {
-	b := a.Copy(false)
+	b := a.Pick()
 	for k, list := range b.lists {
 		b.lists[k] = list[i:j]
 	}
