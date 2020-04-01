@@ -125,6 +125,11 @@ func (a *Frame) Del(key string) *Frame {
 		delete(a.index, key)
 		copy(a.lists[i:], a.lists[i+1:])
 		a.lists = a.lists[:len(a.lists)-1]
+		for key, j := range a.index {
+			if j > i {
+				a.index[key] = j - 1
+			}
+		}
 	}
 	return a
 }
