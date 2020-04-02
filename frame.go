@@ -101,6 +101,7 @@ func (a *Frame) Set(key string, list List) *Frame {
 	a.check(list)
 	if i, ok := a.index[key]; ok {
 		a.lists[i] = list
+		return a
 	}
 	a.index[key] = len(a.lists)
 	a.lists = append(a.lists, list)
@@ -111,7 +112,6 @@ func (a *Frame) Set(key string, list List) *Frame {
 func (a *Frame) Add(key string, list List) *Frame {
 	if _, ok := a.index[key]; ok {
 		return a.Add(key+" ", list)
-
 	}
 	a.check(list)
 	a.index[key] = len(a.lists)
