@@ -20,5 +20,8 @@ func (a Float) Bool() bool {
 
 // String returns as a string value.
 func (a Float) String() string {
+	if v := int64(a); Float(v) == a {
+		return strconv.FormatInt(v, 10)
+	}
 	return strconv.FormatFloat(float64(a), 'g', -1, 64)
 }
