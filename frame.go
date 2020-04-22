@@ -275,7 +275,7 @@ func (a *Frame) GroupBy(keys ...string) *Group {
 		data:  data,
 	}
 	for _, key := range keys {
-		g.Apply("", key, First)
+		g.Apply(key, key, First)
 	}
 	return g
 }
