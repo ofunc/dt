@@ -18,11 +18,8 @@ func NewFrame(keys ...string) *Frame {
 	n := len(keys)
 	index := make(map[string]int, n)
 	for i, key := range keys {
-		for {
-			if _, ok := index[key]; !ok {
-				break
-			}
-			key = key + " "
+		if _, ok := index[key]; ok {
+			panic("dt: key already exists: " + key)
 		}
 		index[key] = i
 	}
@@ -95,7 +92,7 @@ func (a *Frame) Get(key string) List {
 	if i, ok := a.index[key]; ok {
 		return a.lists[i]
 	}
-	return make(List, a.Len())
+	panic("dt: key not found: " + key)
 }
 
 // Set sets the list by key.
@@ -113,7 +110,7 @@ func (a *Frame) Set(key string, list List) *Frame {
 // Add adds the list with key.
 func (a *Frame) Add(key string, list List) *Frame {
 	if _, ok := a.index[key]; ok {
-		return a.Add(key+" ", list)
+		panic("dt: key already exists: " + key)
 	}
 	a.check(list)
 	a.index[key] = len(a.lists)
@@ -139,6 +136,9 @@ func (a *Frame) Del(key string) *Frame {
 // Rename renames the key.
 func (a *Frame) Rename(old, new string) *Frame {
 	if i, ok := a.index[old]; ok {
+		if _, ok := a.index[new]; ok {
+			panic("dt: key already exists: " + new)
+		}
 		delete(a.index, old)
 		a.index[new] = i
 	}
@@ -146,8 +146,9 @@ func (a *Frame) Rename(old, new string) *Frame {
 }
 
 // Pick picks some lists and returns a new frame,
-func (a *Frame) Pick(keys ...string) *Frame {
+func (a *Frame) Pick(key string, keys ...string) *Frame {
 	b := NewFrame()
+	b.Set(key, a.Get(key))
 	for _, key := range keys {
 		b.Set(key, a.Get(key))
 	}
@@ -164,7 +165,7 @@ func (a *Frame) Iter() *Iter {
 
 // Slice gets the slice of frame a.
 func (a *Frame) Slice(i, j int) *Frame {
-	b := a.Pick()
+	b := a.Copy(false)
 	for k, list := range b.lists {
 		b.lists[k] = list[i:j]
 	}
@@ -312,6 +313,6 @@ func (a *Frame) check(list List) {
 		return
 	}
 	if n, m := len(a.lists[0]), len(list); n != m {
-		panic(fmt.Errorf("dt: invalid list length, expected %v, got %v", n, m))
+		panic(fmt.Sprintf("dt: invalid list length, expected %v, got %v", n, m))
 	}
 }
