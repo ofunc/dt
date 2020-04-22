@@ -1,10 +1,5 @@
 package dt
 
-import (
-	"errors"
-	"reflect"
-)
-
 // Join is the join option.
 type Join struct {
 	lframe *Frame
@@ -35,10 +30,10 @@ func (a *Join) RKeys(keys ...string) *Join {
 // Do does the join operation.
 func (a *Join) Do(lprefix, rprefix string) *Frame {
 	if len(a.lkeys) != len(a.rkeys) {
-		panic(errors.New("dt.Join: number of the left keys not equals to the right keys"))
+		panic("dt.Join: number of the left keys not equals to the right keys")
 	}
 	if len(a.lkeys) == 0 {
-		panic(errors.New("dt.Join: keys can not be empty"))
+		panic("dt.Join: keys can not be empty")
 	}
 
 	m := len(a.lframe.lists)
@@ -57,11 +52,10 @@ func (a *Join) Do(lprefix, rprefix string) *Frame {
 		frame.lists[i+m] = make(List, n)
 	}
 
-	typ := reflect.ArrayOf(len(a.lkeys), tvalue)
-	idx := a.index(typ)
+	idx := a.index()
 	for iter := a.lframe.Iter(); iter.Next(); {
 		r := iter.Record().(record)
-		if i, ok := idx[makeKey(typ, r, a.lkeys)]; ok {
+		if i, ok := idx[makeKey(r, a.lkeys)]; ok {
 			for j, l := range a.rframe.lists {
 				frame.lists[m+j][r.index] = l[i]
 			}
@@ -70,12 +64,12 @@ func (a *Join) Do(lprefix, rprefix string) *Frame {
 	return frame
 }
 
-func (a *Join) index(typ reflect.Type) map[interface{}]int {
+func (a *Join) index() map[string]int {
 	frame := a.rframe
-	idx := make(map[interface{}]int, frame.Len())
+	idx := make(map[string]int, frame.Len())
 	for iter := frame.Iter(); iter.Next(); {
 		r := iter.Record().(record)
-		idx[makeKey(typ, r, a.rkeys)] = r.index
+		idx[makeKey(r, a.rkeys)] = r.index
 	}
 	return idx
 }

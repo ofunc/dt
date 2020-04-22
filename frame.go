@@ -3,7 +3,6 @@ package dt
 import (
 	"bytes"
 	"fmt"
-	"reflect"
 	"sort"
 )
 
@@ -265,11 +264,10 @@ func (a *Frame) Join(b *Frame) *Join {
 
 // GroupBy groups records by keys.
 func (a *Frame) GroupBy(keys ...string) *Group {
-	data := make(map[interface{}]([]int))
-	typ := reflect.ArrayOf(len(keys), tvalue)
+	data := make(map[string]([]int))
 	for iter := a.Iter(); iter.Next(); {
 		r := iter.Record().(record)
-		k := makeKey(typ, r, keys)
+		k := makeKey(r, keys)
 		data[k] = append(data[k], r.index)
 	}
 	g := &Group{

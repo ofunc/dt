@@ -2,11 +2,8 @@ package dt
 
 import (
 	"math"
-	"reflect"
+	"strings"
 )
-
-var na = Value(nil)
-var tvalue = reflect.TypeOf(&na).Elem()
 
 // IsNA checks if a is NA.
 func IsNA(a Value) bool {
@@ -20,10 +17,10 @@ func IsNA(a Value) bool {
 	}
 }
 
-func makeKey(t reflect.Type, r Record, keys []string) interface{} {
-	k := reflect.New(t).Elem()
+func makeKey(r Record, keys []string) string {
+	ks := make([]string, len(keys))
 	for i, key := range keys {
-		k.Index(i).Set(reflect.ValueOf(r.Value(key)))
+		ks[i] = r.String(key)
 	}
-	return k.Interface()
+	return strings.Join(ks, "\r\t\n")
 }

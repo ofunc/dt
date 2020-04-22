@@ -3,7 +3,7 @@ package dt
 // Group is a group data structure.
 type Group struct {
 	frame    *Frame
-	data     map[interface{}]([]int)
+	data     map[string]([]int)
 	prefixes []string
 	keys     []string
 	funcs    [](func(List) Value)
