@@ -263,8 +263,8 @@ func (a *Frame) Join(b *Frame) *Join {
 	}
 }
 
-// Group groups records by keys.
-func (a *Frame) Group(keys ...string) *Group {
+// GroupBy groups records by keys.
+func (a *Frame) GroupBy(keys ...string) *Group {
 	data := make(map[interface{}]([]int))
 	typ := reflect.ArrayOf(len(keys), tvalue)
 	for iter := a.Iter(); iter.Next(); {
