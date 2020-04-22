@@ -32,8 +32,8 @@ func NewFrame(keys ...string) *Frame {
 	}
 }
 
-// Like returns a empty frame like frame a.
-func (a *Frame) Like() *Frame {
+// Empty returns a empty frame like frame a.
+func (a *Frame) Empty() *Frame {
 	index := make(map[string]int, len(a.lists))
 	for key, i := range a.index {
 		index[key] = i
@@ -46,7 +46,7 @@ func (a *Frame) Like() *Frame {
 
 // Copy makes a copy of frame a.
 func (a *Frame) Copy() *Frame {
-	b := a.Like()
+	b := a.Empty()
 	copy(b.lists, a.lists)
 	for i, l := range b.lists {
 		t := make(List, len(l))
@@ -217,7 +217,7 @@ func (a *Frame) MapTo(key string, f func(Record) Value) *Frame {
 
 // Filter filters the frame with function f.
 func (a *Frame) Filter(f func(Record) bool) *Frame {
-	b := a.Like()
+	b := a.Empty()
 	for iter := a.Iter(); iter.Next(); {
 		r := iter.Record().(record)
 		if f(r) {
