@@ -15,14 +15,6 @@ func (a List) Float() List {
 	return a
 }
 
-// Bool converts the list to bool list.
-func (a List) Bool() List {
-	for i, v := range a {
-		a[i] = Bool(v.Bool())
-	}
-	return a
-}
-
 // String converts the list to string list.
 func (a List) String() List {
 	for i, v := range a {

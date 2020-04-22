@@ -57,8 +57,6 @@ func (a Writer) WriteFile(frame *dt.Frame) (err error) {
 				cell.Type = "e"
 			case dt.Float:
 				cell.Type = "n"
-			case dt.Bool:
-				cell.Type = "b"
 			default:
 				cell.Type = "inlineStr"
 			}

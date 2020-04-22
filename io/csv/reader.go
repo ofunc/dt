@@ -101,12 +101,6 @@ func value(r []string, i int) dt.Value {
 			return dt.Float(v)
 		}
 	}
-	if x == "true" || x == "TRUE" {
-		return dt.Bool(true)
-	}
-	if x == "false" || x == "FALSE" {
-		return dt.Bool(false)
-	}
 	return dt.String(r[i])
 }
 

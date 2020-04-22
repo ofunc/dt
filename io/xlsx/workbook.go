@@ -182,8 +182,6 @@ func (a *Workbook) value(cell *Cell) dt.Value {
 	switch cell.Type {
 	case "e":
 		return nil
-	case "b":
-		return dt.Bool(cell.Value != "0")
 	case "s":
 		return dt.String(a.sst.value(cell.Value))
 	case "inlineStr":

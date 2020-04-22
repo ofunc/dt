@@ -8,7 +8,6 @@ import (
 type Record interface {
 	Value(key string) Value
 	Float(key string) float64
-	Bool(key string) bool
 	String(key string) string
 }
 
@@ -32,14 +31,6 @@ func (a record) Float(key string) float64 {
 		return v.Float()
 	}
 	return math.NaN()
-}
-
-// Bool returns the bool value by key.
-func (a record) Bool(key string) bool {
-	if v := a.Value(key); v != nil {
-		return v.Bool()
-	}
-	return false
 }
 
 // String returns the string value by key.
