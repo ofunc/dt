@@ -17,11 +17,6 @@ func (a String) Float() float64 {
 	return math.NaN()
 }
 
-// Bool returns as a bool value.
-func (a String) Bool() bool {
-	return a != ""
-}
-
 // String returns as a string value.
 func (a String) String() string {
 	return string(a)
