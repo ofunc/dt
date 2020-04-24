@@ -2,8 +2,8 @@ package dt
 
 // Iter is a iter of frame.
 type Iter struct {
-	index int
 	frame *Frame
+	index int
 }
 
 // Next check if has next record.
@@ -15,7 +15,7 @@ func (a *Iter) Next() bool {
 // Record returns the current record.
 func (a *Iter) Record() Record {
 	return record{
-		index: a.index,
 		frame: a.frame,
+		index: a.index,
 	}
 }

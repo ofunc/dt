@@ -1,8 +1,8 @@
 package dt
 
 type sorter struct {
-	cmp   func(Record, Record) bool
 	frame *Frame
+	cmp   func(Record, Record) bool
 }
 
 // Len is the number of elements in the collection.
@@ -14,11 +14,11 @@ func (a sorter) Len() int {
 // index i should sort before the element with index j.
 func (a sorter) Less(i, j int) bool {
 	return a.cmp(record{
+		frame: a.frame,
 		index: i,
-		frame: a.frame,
 	}, record{
-		index: j,
 		frame: a.frame,
+		index: j,
 	})
 }
 

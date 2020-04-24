@@ -16,11 +16,11 @@ type Frame struct {
 func NewFrame(keys ...string) *Frame {
 	n := len(keys)
 	index := make(map[string]int, n)
-	for i, key := range keys {
+	for j, key := range keys {
 		if _, ok := index[key]; ok {
 			panic("dt: key already exists: " + key)
 		}
-		index[key] = i
+		index[key] = j
 	}
 	return &Frame{
 		index: index,
@@ -31,8 +31,8 @@ func NewFrame(keys ...string) *Frame {
 // Empty returns a empty frame like frame a.
 func (a *Frame) Empty() *Frame {
 	index := make(map[string]int, len(a.lists))
-	for key, i := range a.index {
-		index[key] = i
+	for key, j := range a.index {
+		index[key] = j
 	}
 	return &Frame{
 		index: index,
@@ -45,10 +45,10 @@ func (a *Frame) Copy(deep bool) *Frame {
 	b := a.Empty()
 	copy(b.lists, a.lists)
 	if deep {
-		for i, l := range b.lists {
+		for j, l := range b.lists {
 			t := make(List, len(l))
 			copy(t, l)
-			b.lists[i] = t
+			b.lists[j] = t
 		}
 	}
 	return b
@@ -57,8 +57,8 @@ func (a *Frame) Copy(deep bool) *Frame {
 // Keys returns the keys of frame a.
 func (a *Frame) Keys() []string {
 	keys := make([]string, len(a.lists))
-	for key, i := range a.index {
-		keys[i] = key
+	for key, j := range a.index {
+		keys[j] = key
 	}
 	return keys
 }
@@ -88,8 +88,8 @@ func (a *Frame) Has(keys ...string) bool {
 
 // Get gets the list by key.
 func (a *Frame) Get(key string) List {
-	if i, ok := a.index[key]; ok {
-		return a.lists[i]
+	if j, ok := a.index[key]; ok {
+		return a.lists[j]
 	}
 	panic("dt: key not found: " + key)
 }
@@ -97,8 +97,8 @@ func (a *Frame) Get(key string) List {
 // Set sets the list by key.
 func (a *Frame) Set(key string, list List) *Frame {
 	a.check(list)
-	if i, ok := a.index[key]; ok {
-		a.lists[i] = list
+	if j, ok := a.index[key]; ok {
+		a.lists[j] = list
 		return a
 	}
 	a.index[key] = len(a.lists)
@@ -119,13 +119,13 @@ func (a *Frame) Add(key string, list List) *Frame {
 
 // Del deletes the list by key.
 func (a *Frame) Del(key string) *Frame {
-	if i, ok := a.index[key]; ok {
+	if j, ok := a.index[key]; ok {
 		delete(a.index, key)
-		copy(a.lists[i:], a.lists[i+1:])
+		copy(a.lists[j:], a.lists[j+1:])
 		a.lists = a.lists[:len(a.lists)-1]
-		for key, j := range a.index {
-			if j > i {
-				a.index[key] = j - 1
+		for key, k := range a.index {
+			if k > j {
+				a.index[key] = k - 1
 			}
 		}
 	}
@@ -134,12 +134,14 @@ func (a *Frame) Del(key string) *Frame {
 
 // Rename renames the key.
 func (a *Frame) Rename(old, new string) *Frame {
-	if i, ok := a.index[old]; ok {
+	if j, ok := a.index[old]; ok {
 		if _, ok := a.index[new]; ok {
 			panic("dt: key already exists: " + new)
 		}
 		delete(a.index, old)
-		a.index[new] = i
+		a.index[new] = j
+	} else {
+		panic("dt: key not found: " + old)
 	}
 	return a
 }
@@ -157,13 +159,20 @@ func (a *Frame) Pick(key string, keys ...string) *Frame {
 // Iter returns a iter of frame a.
 func (a *Frame) Iter() *Iter {
 	return &Iter{
-		index: -1,
 		frame: a,
+		index: -1,
 	}
 }
 
 // Slice gets the slice of frame a.
 func (a *Frame) Slice(i, j int) *Frame {
+	n := a.Len()
+	if i < 0 {
+		i += n
+	}
+	if j < 0 {
+		j += n
+	}
 	b := a.Copy(false)
 	for k, list := range b.lists {
 		b.lists[k] = list[i:j]
@@ -173,17 +182,17 @@ func (a *Frame) Slice(i, j int) *Frame {
 
 // Concat concats frame a with b.
 func (a *Frame) Concat(b *Frame) *Frame {
-	for key, i := range a.index {
-		a.lists[i] = append(a.lists[i], b.Get(key)...)
+	for key, j := range a.index {
+		a.lists[j] = append(a.lists[j], b.Get(key)...)
 	}
 	return a
 }
 
 // Append appends x to frames a.
 func (a *Frame) Append(rs ...Record) *Frame {
-	for key, i := range a.index {
+	for key, j := range a.index {
 		for _, r := range rs {
-			a.lists[i] = append(a.lists[i], r.Value(key))
+			a.lists[j] = append(a.lists[j], r.Value(key))
 		}
 	}
 	return a
@@ -192,8 +201,8 @@ func (a *Frame) Append(rs ...Record) *Frame {
 // Sort sorts frame a by function f.
 func (a *Frame) Sort(f func(Record, Record) bool) *Frame {
 	sort.Sort(sorter{
-		cmp:   f,
 		frame: a,
+		cmp:   f,
 	})
 	return a
 }
@@ -220,8 +229,8 @@ func (a *Frame) Filter(f func(Record) bool) *Frame {
 	for iter := a.Iter(); iter.Next(); {
 		r := iter.Record().(record)
 		if f(r) {
-			for i, l := range b.lists {
-				b.lists[i] = append(l, a.lists[i][r.index])
+			for j, l := range b.lists {
+				b.lists[j] = append(l, a.lists[j][r.index])
 			}
 		}
 	}
