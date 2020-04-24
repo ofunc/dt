@@ -190,7 +190,7 @@ func (a *Workbook) value(cell *Cell) dt.Value {
 		x := strings.TrimSpace(cell.Value)
 		if len(x) < 16 || !regDigits.MatchString(x) {
 			if v, err := strconv.ParseFloat(x, 64); err == nil {
-				return dt.Float(v)
+				return dt.Number(v)
 			}
 		}
 		return dt.String(cell.Value)

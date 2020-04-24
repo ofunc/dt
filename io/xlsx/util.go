@@ -87,12 +87,12 @@ func CellIndex(r string) (int, int) {
 
 // Time converts a dt.Value to time.Time.
 func Time(v dt.Value) time.Time {
-	return time.Unix(int64((v.Float()-25569)*86400), 0).UTC()
+	return time.Unix(int64((v.Number()-25569)*86400), 0).UTC()
 }
 
 // Value converts a time.Time to dt.Value.
 func Value(v time.Time) dt.Value {
-	return dt.Float(v.Unix())/86400 + 25569
+	return dt.Number(v.Unix())/86400 + 25569
 }
 
 func readZipFile(f *zip.File) ([]byte, error) {

@@ -7,14 +7,14 @@ import (
 // Record is the record interface.
 type Record interface {
 	Value(key string) Value
-	Float(key string) float64
+	Number(key string) float64
 	String(key string) string
 }
 
 // record is a ref record.
 type record struct {
-	index int
 	frame *Frame
+	index int
 }
 
 // Value returns the value by key.
@@ -25,10 +25,10 @@ func (a record) Value(key string) Value {
 	return nil
 }
 
-// Float returns the float64 value by key.
-func (a record) Float(key string) float64 {
+// Number returns the float64 value by key.
+func (a record) Number(key string) float64 {
 	if v := a.Value(key); v != nil {
-		return v.Float()
+		return v.Number()
 	}
 	return math.NaN()
 }

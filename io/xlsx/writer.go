@@ -55,7 +55,7 @@ func (a Writer) WriteFile(frame *dt.Frame) (err error) {
 			switch value.(type) {
 			case nil:
 				cell.Type = "e"
-			case dt.Float:
+			case dt.Number:
 				cell.Type = "n"
 			default:
 				cell.Type = "inlineStr"
