@@ -272,7 +272,11 @@ func (a *Frame) Join(b *Frame) *Join {
 }
 
 // GroupBy groups records by keys.
-func (a *Frame) GroupBy(keys ...string) *Group {
+func (a *Frame) GroupBy(key string, keys ...string) *Group {
+	m := len(keys)
+	keys = append(keys, key)
+	keys[0], keys[m] = keys[m], keys[0]
+
 	data := make(map[string]([]int))
 	for iter := a.Iter(); iter.Next(); {
 		r := iter.Record().(record)
