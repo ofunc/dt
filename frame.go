@@ -117,17 +117,10 @@ func (a *Frame) Add(key string, list List) *Frame {
 	return a
 }
 
-// Del deletes the list by key.
-func (a *Frame) Del(key string) *Frame {
-	if j, ok := a.index[key]; ok {
-		delete(a.index, key)
-		copy(a.lists[j:], a.lists[j+1:])
-		a.lists = a.lists[:len(a.lists)-1]
-		for key, k := range a.index {
-			if k > j {
-				a.index[key] = k - 1
-			}
-		}
+// Del deletes the list by keys.
+func (a *Frame) Del(keys ...string) *Frame {
+	for _, key := range keys {
+		a.del(key)
 	}
 	return a
 }
@@ -264,10 +257,11 @@ func (a *Frame) FillNA(value Value, keys ...string) *Frame {
 }
 
 // Join joins frame a and b.
-func (a *Frame) Join(b *Frame) *Join {
+func (a *Frame) Join(b *Frame, key string, keys ...string) *Join {
 	return &Join{
 		lframe: a,
 		rframe: b,
+		rkeys:  append(keys, key),
 	}
 }
 
@@ -322,5 +316,18 @@ func (a *Frame) String() string {
 func (a *Frame) check(list List) {
 	if n, m := a.Len(), len(list); n != m {
 		panic(fmt.Sprintf("dt: invalid list length, expected %v, got %v", n, m))
+	}
+}
+
+func (a *Frame) del(key string) {
+	if j, ok := a.index[key]; ok {
+		delete(a.index, key)
+		copy(a.lists[j:], a.lists[j+1:])
+		a.lists = a.lists[:len(a.lists)-1]
+		for key, k := range a.index {
+			if k > j {
+				a.index[key] = k - 1
+			}
+		}
 	}
 }
