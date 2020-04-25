@@ -316,10 +316,7 @@ func (a *Frame) String() string {
 }
 
 func (a *Frame) check(list List) {
-	if len(a.lists) == 0 {
-		return
-	}
-	if n, m := len(a.lists[0]), len(list); n != m {
+	if n, m := a.Len(), len(list); n != m {
 		panic(fmt.Sprintf("dt: invalid list length, expected %v, got %v", n, m))
 	}
 }
