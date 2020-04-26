@@ -7,7 +7,6 @@ import (
 	"errors"
 	"io"
 	"os"
-	"regexp"
 	"strconv"
 	"strings"
 
@@ -15,8 +14,6 @@ import (
 	helper "github.com/ofunc/dt/io"
 	"golang.org/x/text/transform"
 )
-
-var regDigits = regexp.MustCompile(`^\d+$`)
 
 // Reader is the CSV reader.
 type Reader struct {
@@ -156,13 +153,7 @@ func value(r []string, i int) dt.Value {
 	if i >= len(r) {
 		return nil
 	}
-	x := strings.TrimSpace(r[i])
-	if len(x) < 16 || !regDigits.MatchString(x) {
-		if v, err := strconv.ParseFloat(x, 64); err == nil {
-			return dt.Number(v)
-		}
-	}
-	return dt.String(r[i])
+	return helper.Value(r[i])
 }
 
 func cutEmpty(rs [][]string) [][]string {

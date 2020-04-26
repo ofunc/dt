@@ -18,7 +18,6 @@ import (
 var rnd = rand.New(rand.NewSource(time.Now().Unix()))
 
 var regCalcID = regexp.MustCompile(`<\s*calcPr\s+calcId\s*=\s*"\d*"`)
-var regDigits = regexp.MustCompile(`^\d+$`)
 
 // RowRef returns the row ref by index.
 func RowRef(i int) string {
