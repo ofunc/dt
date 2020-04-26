@@ -3,7 +3,6 @@ package xlsx
 import (
 	"bytes"
 	"encoding/xml"
-	"errors"
 )
 
 // Sheet is a sheet.
@@ -25,7 +24,7 @@ func (a *Sheet) data() *Data {
 			panic(err)
 		}
 	} else {
-		panic(errors.New("dt/io/xlsx: invalid xlsx file"))
+		panic("dt/io/xlsx: invalid xlsx file")
 	}
 
 	rows := a.sheetdata.Rows

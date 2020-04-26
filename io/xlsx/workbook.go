@@ -172,7 +172,7 @@ func (a *Workbook) sheet(name string) *Sheet {
 			return sheet
 		}
 	}
-	panic(errors.New("dt/io/xlsx: sheet not found: " + name))
+	panic("dt/io/xlsx: sheet not found: " + name)
 }
 
 func (a *Workbook) value(cell *Cell) dt.Value {

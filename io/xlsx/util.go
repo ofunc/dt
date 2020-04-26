@@ -2,7 +2,6 @@ package xlsx
 
 import (
 	"archive/zip"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"math/rand"
@@ -56,7 +55,7 @@ func ColRef(i int) string {
 func ColIndex(r string) int {
 	n := len(r)
 	if n < 1 {
-		panic(errors.New("dt/io/xlsx: empty col ref"))
+		panic("dt/io/xlsx: empty col ref")
 	}
 	if n == 1 {
 		c := r[0]

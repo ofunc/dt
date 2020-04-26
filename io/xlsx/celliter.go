@@ -1,7 +1,6 @@
 package xlsx
 
 import (
-	"errors"
 	"strings"
 )
 
@@ -24,7 +23,7 @@ func (a *CellIter) next() bool {
 	}
 	_, a.c = CellIndex(strings.ToUpper(a.cells[a.j].Ref))
 	if a.i > a.c {
-		panic(errors.New("dt/io/xlsx: invalid xlsx file"))
+		panic("dt/io/xlsx: invalid xlsx file")
 	}
 	return true
 }
