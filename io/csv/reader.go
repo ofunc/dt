@@ -36,56 +36,56 @@ func NewReader() *Reader {
 }
 
 // Drop is the drop option.
-func (a *Reader) Drop(v int) *Reader {
-	if v < 0 {
-		panic("dt/io/csv: invalid drop: " + strconv.Itoa(v))
+func (a *Reader) Drop(o int) *Reader {
+	if o < 0 {
+		panic("dt/io/csv: invalid drop: " + strconv.Itoa(o))
 	}
-	a.drop = v
+	a.drop = o
 	return a
 }
 
 // Tail is the tail option.
-func (a *Reader) Tail(v int) *Reader {
-	if v < 0 {
-		panic("dt/io/csv: invalid tail: " + strconv.Itoa(v))
+func (a *Reader) Tail(o int) *Reader {
+	if o < 0 {
+		panic("dt/io/csv: invalid tail: " + strconv.Itoa(o))
 	}
-	a.tail = v
+	a.tail = o
 	return a
 }
 
 // Comma is the comma option.
-func (a *Reader) Comma(v rune) *Reader {
-	a.comma = v
+func (a *Reader) Comma(o rune) *Reader {
+	a.comma = o
 	return a
 }
 
 // Comment is the comment option.
-func (a *Reader) Comment(v rune) *Reader {
-	a.comment = v
+func (a *Reader) Comment(o rune) *Reader {
+	a.comment = o
 	return a
 }
 
 // LazyQuotes is the lazy quotes option.
-func (a *Reader) LazyQuotes(v bool) *Reader {
-	a.lazyQuotes = v
+func (a *Reader) LazyQuotes(o bool) *Reader {
+	a.lazyQuotes = o
 	return a
 }
 
 // TrimLeadingSpace is the trim leading space option.
-func (a *Reader) TrimLeadingSpace(v bool) *Reader {
-	a.trimLeadingSpace = v
+func (a *Reader) TrimLeadingSpace(o bool) *Reader {
+	a.trimLeadingSpace = o
 	return a
 }
 
 // Suffix is the suffix quotes option.
-func (a *Reader) Suffix(v string) *Reader {
-	a.suffix = v
+func (a *Reader) Suffix(o string) *Reader {
+	a.suffix = o
 	return a
 }
 
 // Transformer is the transformer quotes option.
-func (a *Reader) Transformer(v transform.Transformer) *Reader {
-	a.transformer = v
+func (a *Reader) Transformer(o transform.Transformer) *Reader {
+	a.transformer = o
 	return a
 }
 
