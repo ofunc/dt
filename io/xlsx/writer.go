@@ -8,13 +8,33 @@ import (
 
 // Writer is the xlsx writer.
 type Writer struct {
-	Template string
-	File     string
-	Sheet    string
+	template string
+	filename string
+	sheet    string
+}
+
+// NewWriter creates a new writer.
+func NewWriter(filename string) *Writer {
+	return &Writer{
+		template: filename,
+		filename: filename,
+	}
+}
+
+// Sheet is the sheet option.
+func (a *Writer) Sheet(o string) *Writer {
+	a.sheet = o
+	return a
+}
+
+// Template is the template option.
+func (a *Writer) Template(o string) *Writer {
+	a.template = o
+	return a
 }
 
 // WriteFile writes frame to a xlsx file.
-func (a Writer) WriteFile(frame *dt.Frame) (err error) {
+func (a *Writer) WriteFile(frame *dt.Frame) (err error) {
 	defer func() {
 		if e := recover(); e != nil {
 			err = fmt.Errorf("%v", e)
@@ -65,14 +85,14 @@ func (a Writer) WriteFile(frame *dt.Frame) (err error) {
 		rows = append(rows, row)
 	}
 
-	workbook, err := OpenFile(a.Template)
+	workbook, err := OpenFile(a.template)
 	if err != nil {
 		return err
 	}
-	sheet := workbook.sheet(a.Sheet)
+	sheet := workbook.sheet(a.sheet)
 	sheet.data().Rows = rows
 	if err := sheet.update(); err != nil {
 		return err
 	}
-	return workbook.WriteFile(a.File)
+	return workbook.WriteFile(a.filename)
 }
