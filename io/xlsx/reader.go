@@ -4,22 +4,77 @@ import (
 	"archive/zip"
 	"fmt"
 	"io"
+	"strconv"
 	"strings"
 
 	"github.com/ofunc/dt"
+	helper "github.com/ofunc/dt/io"
 )
 
 // Reader is the xlsx reader.
 type Reader struct {
-	Drop  int
-	Head  int
-	Tail  int
-	Sep   string
-	Sheet string
+	drop   int
+	tail   int
+	head   int
+	sep    string
+	sheet  string
+	suffix string
+}
+
+// NewReader creates a new reader.
+func NewReader() *Reader {
+	return &Reader{
+		head: 1,
+	}
+}
+
+// Drop is the drop option.
+func (a *Reader) Drop(o int) *Reader {
+	if o < 0 {
+		panic("dt/io/xlsx: invalid drop: " + strconv.Itoa(o))
+	}
+	a.drop = o
+	return a
+}
+
+// Tail is the tail option.
+func (a *Reader) Tail(o int) *Reader {
+	if o < 0 {
+		panic("dt/io/xlsx: invalid tail: " + strconv.Itoa(o))
+	}
+	a.tail = o
+	return a
+}
+
+// Head is the head option.
+func (a *Reader) Head(o int) *Reader {
+	if o < 1 {
+		panic("dt/io/xlsx: invalid head: " + strconv.Itoa(o))
+	}
+	a.drop = o
+	return a
+}
+
+// Sep is the sep option.
+func (a *Reader) Sep(o string) *Reader {
+	a.sep = o
+	return a
+}
+
+// Sheet is the sheet option.
+func (a *Reader) Sheet(o string) *Reader {
+	a.sheet = o
+	return a
+}
+
+// Suffix is the suffix option.
+func (a *Reader) Suffix(o string) *Reader {
+	a.suffix = o
+	return a
 }
 
 // ReadFile reads a frame from the file.
-func (a Reader) ReadFile(name string) (*dt.Frame, error) {
+func (a *Reader) ReadFile(name string) (*dt.Frame, error) {
 	workbook, err := OpenFile(name)
 	if err != nil {
 		return nil, err
@@ -28,7 +83,7 @@ func (a Reader) ReadFile(name string) (*dt.Frame, error) {
 }
 
 // Read reads a frame from the io.Reader.
-func (a Reader) Read(r io.Reader) (*dt.Frame, error) {
+func (a *Reader) Read(r io.Reader) (*dt.Frame, error) {
 	workbook, err := OpenReader(r)
 	if err != nil {
 		return nil, err
@@ -37,7 +92,7 @@ func (a Reader) Read(r io.Reader) (*dt.Frame, error) {
 }
 
 // ReadZip reads a frame from the zip.Reader.
-func (a Reader) ReadZip(zr *zip.Reader) (*dt.Frame, error) {
+func (a *Reader) ReadZip(zr *zip.Reader) (*dt.Frame, error) {
 	workbook, err := OpenZip(zr)
 	if err != nil {
 		return nil, err
@@ -46,25 +101,21 @@ func (a Reader) ReadZip(zr *zip.Reader) (*dt.Frame, error) {
 }
 
 // ReadWorkbook reads a frame from the workbook.
-func (a Reader) ReadWorkbook(workbook *Workbook) (frame *dt.Frame, err error) {
+func (a *Reader) ReadWorkbook(workbook *Workbook) (frame *dt.Frame, err error) {
 	defer func() {
 		if e := recover(); e != nil {
 			err = fmt.Errorf("%v", e)
 		}
 	}()
 
-	rowiter := workbook.sheet(a.Sheet).data().rowIter()
-	for i := 0; i < a.Drop; i++ {
+	rowiter := workbook.sheet(a.sheet).data().rowIter()
+	for i := 0; i < a.drop; i++ {
 		if !rowiter.next() {
 			break
 		}
 	}
 
-	head := 1
-	if a.Head > 0 {
-		head = a.Head
-	}
-	hs := make([][]string, head)
+	hs := make([][]string, a.head)
 	for i := range hs {
 		if !rowiter.next() {
 			break
@@ -81,7 +132,7 @@ func (a Reader) ReadWorkbook(workbook *Workbook) (frame *dt.Frame, err error) {
 		}
 	}
 
-	keys := a.makeKeys(cleanHeads(hs))
+	keys := helper.Keys(a.makeKeys(cleanHeads(hs)), a.suffix)
 	frame = dt.NewFrame(keys...)
 	lists := frame.Lists()
 	for rowiter.next() {
@@ -99,7 +150,7 @@ func (a Reader) ReadWorkbook(workbook *Workbook) (frame *dt.Frame, err error) {
 		}
 	}
 
-	n := frame.Len() - a.Tail
+	n := frame.Len() - a.tail
 	if n < 0 {
 		n = 0
 	}
@@ -109,7 +160,7 @@ func (a Reader) ReadWorkbook(workbook *Workbook) (frame *dt.Frame, err error) {
 	return
 }
 
-func (a Reader) makeKeys(hs [][]string) []string {
+func (a *Reader) makeKeys(hs [][]string) []string {
 	n := len(hs[len(hs)-1])
 	keys := make([]string, n)
 	xs := make([]string, len(hs))
@@ -127,7 +178,7 @@ func (a Reader) makeKeys(hs [][]string) []string {
 			if keys[j] == "" {
 				keys[j] = x
 			} else if x != "" {
-				keys[j] = keys[j] + a.Sep + x
+				keys[j] = keys[j] + a.sep + x
 			}
 		}
 	}
