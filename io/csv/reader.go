@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"github.com/ofunc/dt"
-	helper "github.com/ofunc/dt/io"
+	util "github.com/ofunc/dt/io"
 	"golang.org/x/text/transform"
 )
 
@@ -131,7 +131,7 @@ func (a *Reader) ReadRecords(rs [][]string) (*dt.Frame, error) {
 		return nil, errors.New("dt/io/csv.Reader: empty data")
 	}
 
-	frame := dt.NewFrame(helper.Keys(rs[0], a.suffix)...)
+	frame := dt.NewFrame(util.Keys(rs[0], a.suffix)...)
 	lists := frame.Lists()
 	for _, r := range rs[1:] {
 		for i, l := range lists {
@@ -162,7 +162,7 @@ func value(r []string, i int) dt.Value {
 	if i >= len(r) {
 		return nil
 	}
-	return helper.Value(r[i])
+	return util.Value(r[i])
 }
 
 func cutEmpty(rs [][]string) [][]string {

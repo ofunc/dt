@@ -13,7 +13,7 @@ import (
 	"strings"
 
 	"github.com/ofunc/dt"
-	helper "github.com/ofunc/dt/io"
+	util "github.com/ofunc/dt/io"
 )
 
 // Workbook is a workbook.
@@ -185,6 +185,6 @@ func (a *Workbook) value(cell *Cell) dt.Value {
 	case "inlineStr":
 		return dt.String(cell.Value)
 	default:
-		return helper.Value(cell.Value)
+		return util.Value(cell.Value)
 	}
 }

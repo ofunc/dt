@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/ofunc/dt"
-	helper "github.com/ofunc/dt/io"
+	util "github.com/ofunc/dt/io"
 )
 
 // Reader is the xlsx reader.
@@ -132,7 +132,7 @@ func (a *Reader) ReadWorkbook(workbook *Workbook) (frame *dt.Frame, err error) {
 		}
 	}
 
-	keys := helper.Keys(a.makeKeys(cleanHeads(hs)), a.suffix)
+	keys := util.Keys(a.makeKeys(cleanHeads(hs)), a.suffix)
 	frame = dt.NewFrame(keys...)
 	lists := frame.Lists()
 	for rowiter.next() {
