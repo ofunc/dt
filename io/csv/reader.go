@@ -110,11 +110,20 @@ func (a *Reader) Read(r io.Reader) (*dt.Frame, error) {
 	cr.Comment = a.comment
 	cr.LazyQuotes = a.lazyQuotes
 	cr.TrimLeadingSpace = a.trimLeadingSpace
+	return a.ReadCSV(cr)
+}
 
+// ReadCSV reads a frame from the csv.Reader.
+func (a *Reader) ReadCSV(cr *csv.Reader) (*dt.Frame, error) {
 	rs, err := cr.ReadAll()
 	if err != nil {
 		return nil, err
 	}
+	return a.ReadRecords(rs)
+}
+
+// ReadRecords reads a frame from the records.
+func (a *Reader) ReadRecords(rs [][]string) (*dt.Frame, error) {
 	rs = rs[a.drop:]
 	rs = cutEmpty(rs)
 	rs = rs[:len(rs)-a.tail]
