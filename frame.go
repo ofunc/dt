@@ -2,6 +2,7 @@ package dt
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"sort"
 )
@@ -84,6 +85,16 @@ func (a *Frame) Has(keys ...string) bool {
 		}
 	}
 	return true
+}
+
+// Check checks if the frame has the keys.
+func (a *Frame) Check(keys ...string) error {
+	for _, key := range keys {
+		if _, ok := a.index[key]; !ok {
+			return errors.New("dt: key not found: " + key)
+		}
+	}
+	return nil
 }
 
 // Get gets the list by key.
