@@ -282,11 +282,14 @@ func (a *Frame) GroupBy(key string, keys ...string) *Group {
 	keys = append(keys, key)
 	keys[0], keys[m] = keys[m], keys[0]
 
+	lists := make([]List, len(keys))
+	for j, key := range keys {
+		lists[j] = a.Get(key)
+	}
 	data := make(map[string]([]int))
-	for iter := a.Iter(); iter.Next(); {
-		r := iter.Record().(record)
-		k := makeKey(r, keys)
-		data[k] = append(data[k], r.index)
+	for i, n := 0, a.Len(); i < n; i++ {
+		k := makeKey(i, lists)
+		data[k] = append(data[k], i)
 	}
 	g := &Group{
 		frame: a,

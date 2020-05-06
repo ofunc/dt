@@ -38,11 +38,14 @@ func (a *Join) Do(prefix string) *Frame {
 	}
 
 	idx := a.index()
-	for iter := a.lframe.Iter(); iter.Next(); {
-		r := iter.Record().(record)
-		if i, ok := idx[makeKey(r, a.lkeys)]; ok {
+	lists := make([]List, len(a.lkeys))
+	for j, key := range a.lkeys {
+		lists[j] = a.lframe.Get(key)
+	}
+	for i, n := 0, a.lframe.Len(); i < n; i++ {
+		if k, ok := idx[makeKey(i, lists)]; ok {
 			for j, l := range rframe.lists {
-				frame.lists[m+j][r.index] = l[i]
+				frame.lists[m+j][i] = l[k]
 			}
 		}
 	}
@@ -51,10 +54,14 @@ func (a *Join) Do(prefix string) *Frame {
 
 func (a *Join) index() map[string]int {
 	frame := a.rframe
-	idx := make(map[string]int, frame.Len())
-	for iter := frame.Iter(); iter.Next(); {
-		r := iter.Record().(record)
-		idx[makeKey(r, a.rkeys)] = r.index
+	n := frame.Len()
+	lists := make([]List, len(a.rkeys))
+	for j, key := range a.rkeys {
+		lists[j] = frame.Get(key)
+	}
+	idx := make(map[string]int, n)
+	for i := 0; i < n; i++ {
+		idx[makeKey(i, lists)] = i
 	}
 	return idx
 }

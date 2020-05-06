@@ -17,10 +17,12 @@ func IsNA(a Value) bool {
 	}
 }
 
-func makeKey(r Record, keys []string) string {
-	ks := make([]string, len(keys))
-	for i, key := range keys {
-		ks[i] = string(r.String(key))
+func makeKey(i int, lists []List) string {
+	ks := make([]string, len(lists))
+	for j, list := range lists {
+		if v := list[i]; v != nil {
+			ks[j] = v.String()
+		}
 	}
 	return strings.Join(ks, "\r\t\n")
 }
