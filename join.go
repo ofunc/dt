@@ -26,6 +26,9 @@ func (a *Join) Do(prefix string) *Frame {
 	m := len(a.lframe.lists)
 	rframe := a.rframe.Copy(false).Del(a.rkeys...)
 	keys := make([]string, m+len(rframe.lists))
+	for key, j := range a.lframe.index {
+		keys[j] = key
+	}
 	for key, j := range rframe.index {
 		keys[j+m] = prefix + key
 	}
