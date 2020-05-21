@@ -152,8 +152,8 @@ func (a *Frame) Rename(old, new string) *Frame {
 
 // Pick picks some lists and returns a new frame,
 func (a *Frame) Pick(key string, keys ...string) *Frame {
-	b := NewFrame()
-	b.Set(key, a.Get(key))
+	b := NewFrame(key)
+	b.lists[0] = a.Get(key)
 	for _, key := range keys {
 		b.Set(key, a.Get(key))
 	}
