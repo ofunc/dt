@@ -51,7 +51,7 @@ func (a *Reader) Head(o int) *Reader {
 	if o < 1 {
 		panic("dt/io/xlsx: invalid head: " + strconv.Itoa(o))
 	}
-	a.drop = o
+	a.head = o
 	return a
 }
 
